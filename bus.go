@@ -9,17 +9,17 @@ package gst
 import "C"
 
 
-type GstBus struct {
+type Bus struct {
 	C           *C.GstBus
 }
 
 
-func BusNew() (bus *GstBus) {
+func BusNew() (bus *Bus) {
 	CGstBus := C.gst_bus_new()
 
-	bus = &GstBus{
+	bus = &Bus{
 		C: CGstBus,
 	}
-
+	
 	return
 }

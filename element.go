@@ -19,7 +19,8 @@ import  (
 
 
 
-type PadAddedCallback func(name string, element *GstElement, pad *GstPad)
+type PadAddedCallback func(name string, element *Element, pad *Pad)
+
 
 
 type StateOptions int
@@ -33,15 +34,15 @@ const (
 )
 
 
+type Element struct {
 
-type GstElement struct {
-	gstElement *C.GstElement
+	GstElement *C.GstElement
 	onPadAdded PadAddedCallback
 }
 
 
-func (e *GstElement) Name() (name string) {
-	n := (*C.char)(unsafe.Pointer(C.gst_object_get_name((*C.GstObject)(unsafe.Pointer(e.gstElement)))))
+func (e *Element) Name() (name string) {
+	n := (*C.char)(unsafe.Pointer(C.gst_object_get_name((*C.GstObject)(unsafe.Pointer(e.GstElement)))))
 	if n != nil {
 		name = string(nonCopyCString(n, C.int(C.strlen(n))))
 	}
@@ -50,9 +51,9 @@ func (e *GstElement) Name() (name string) {
 }
 
 
-func (e *GstElement) Link(dst *GstElement) bool {
+func (e *Element) Link(dst *Element) bool {
 
-	result := C.gst_element_link(e.gstElement, dst.gstElement)
+	result := C.gst_element_link(e.GstElement, dst.GstElement)
 	if result == C.TRUE {
 		return true
 	}
@@ -60,19 +61,19 @@ func (e *GstElement) Link(dst *GstElement) bool {
 }
 
 
-func (e *GstElement) GetPadTemplate(name string) (padTemplate *GstPadTemplate) {
+func (e *Element) GetPadTemplate(name string) (padTemplate *PadTemplate) {
 
 	n := (*C.gchar)(unsafe.Pointer(C.CString(name)))
 	defer C.g_free(C.gpointer(unsafe.Pointer(n)))
-	CPadTemplate := C.gst_element_class_get_pad_template(C.X_GST_ELEMENT_GET_CLASS(e.gstElement), n)
-	padTemplate = &GstPadTemplate{
+	CPadTemplate := C.gst_element_class_get_pad_template(C.X_GST_ELEMENT_GET_CLASS(e.GstElement), n)
+	padTemplate = &PadTemplate{
 		C: CPadTemplate,
 	}
 
 	return
 }
 
-func (e *GstElement) GetRequestPad(padTemplate *GstPadTemplate, name string, caps *GstCaps) (pad *GstPad) {
+func (e *Element) GetRequestPad(padTemplate *PadTemplate, name string, caps *Caps) (pad *Pad) {
 
 	var n *C.gchar
 	var c *C.GstCaps
@@ -88,8 +89,8 @@ func (e *GstElement) GetRequestPad(padTemplate *GstPadTemplate, name string, cap
 	} else {
 		c = caps.caps
 	}
-	CPad := C.gst_element_request_pad(e.gstElement, padTemplate.C, n, c)
-	pad = &GstPad{
+	CPad := C.gst_element_request_pad(e.GstElement, padTemplate.C, n, c)
+	pad = &Pad{
 		pad: CPad,
 	}
 
@@ -97,12 +98,12 @@ func (e *GstElement) GetRequestPad(padTemplate *GstPadTemplate, name string, cap
 }
 
 
-func (e *GstElement) GetStaticPad(name string) (pad *GstPad) {
+func (e *Element) GetStaticPad(name string) (pad *Pad) {
 
 	n := (*C.gchar)(unsafe.Pointer(C.CString(name)))
 	defer C.g_free(C.gpointer(unsafe.Pointer(n)))
-	CPad := C.gst_element_get_static_pad(e.gstElement, n)
-	pad = &GstPad{
+	CPad := C.gst_element_get_static_pad(e.GstElement, n)
+	pad = &Pad{
 		pad: CPad,
 	}
 
@@ -110,9 +111,9 @@ func (e *GstElement) GetStaticPad(name string) (pad *GstPad) {
 }
 
 
-func (e *GstElement) AddPad(pad *GstPad) bool {
+func (e *Element) AddPad(pad *Pad) bool {
 
-	Cret := C.gst_element_add_pad(e.gstElement, pad.pad)
+	Cret := C.gst_element_add_pad(e.GstElement, pad.pad)
 	if Cret == 1 {
 		return true
 	}
@@ -122,15 +123,15 @@ func (e *GstElement) AddPad(pad *GstPad) bool {
 
 
 
-func (e *GstElement) GetClock() (gstClock *GstClock) {
+func (e *Element) GetClock() (gstClock *Clock) {
 
-	CElementClock := C.gst_element_get_clock(e.gstElement)
+	CElementClock := C.gst_element_get_clock(e.GstElement)
 
-	gstClock = &GstClock{
+	gstClock = &Clock{
 		C: CElementClock,
 	}
 
-	runtime.SetFinalizer(gstClock, func(gstClock *GstClock) {
+	runtime.SetFinalizer(gstClock, func(gstClock *Clock) {
 		C.gst_object_unref(C.gpointer(unsafe.Pointer(gstClock.C)))
 	})
 
@@ -139,13 +140,13 @@ func (e *GstElement) GetClock() (gstClock *GstClock) {
 
 
 // appsrc 
-func (e *GstElement) PushBuffer(buffer *GstBuffer) (err error) {
+func (e *Element) PushBuffer(buffer *Buffer) (err error) {
 
 	// TODO
 	// GST_IS_APP_SRC check
 	var gstReturn C.GstFlowReturn
 
-	gstReturn = C.gst_app_src_push_buffer((*C.GstAppSrc)(unsafe.Pointer(e.gstElement)), buffer.C)
+	gstReturn = C.gst_app_src_push_buffer((*C.GstAppSrc)(unsafe.Pointer(e.GstElement)), buffer.C)
 	if buffer.C == nil {
 
 	}
@@ -159,14 +160,14 @@ func (e *GstElement) PushBuffer(buffer *GstBuffer) (err error) {
 
 
 // appsrc 
-func (e *GstElement) PushSample(sample *GstSample) (err error) {
+func (e *Element) PushSample(sample *Sample) (err error) {
 
 	// TODO
 	// GST_IS_APP_SRC check
 
 	var gstReturn C.GstFlowReturn
 
-	gstReturn = C.gst_app_src_push_sample((*C.GstAppSrc)(unsafe.Pointer(e.gstElement)), sample.C)
+	gstReturn = C.gst_app_src_push_sample((*C.GstAppSrc)(unsafe.Pointer(e.GstElement)), sample.C)
 	if sample.C == nil {
 
 	}
@@ -179,12 +180,12 @@ func (e *GstElement) PushSample(sample *GstSample) (err error) {
 }
 
 // appsink
-func (e *GstElement) PullSample() (sample *GstSample, err error) {
+func (e *Element) PullSample() (sample *Sample, err error) {
 
 	// TODO
 	// GST_IS_APP_SRC check
 
-	CGstSample := C.gst_app_sink_pull_sample((*C.GstAppSink)(unsafe.Pointer(e.gstElement)))
+	CGstSample := C.gst_app_sink_pull_sample((*C.GstAppSink)(unsafe.Pointer(e.GstElement)))
 	if CGstSample == nil {
 		err = errors.New("could not pull a sample from appsink")
 		return
@@ -199,13 +200,13 @@ func (e *GstElement) PullSample() (sample *GstSample, err error) {
 	C.gst_structure_get_int(CCStruct, (*C.gchar)(unsafe.Pointer(C.CString("width"))), &width)
 	C.gst_structure_get_int(CCStruct, (*C.gchar)(unsafe.Pointer(C.CString("height"))), &height)
 
-	sample = &GstSample{
+	sample = &Sample{
 		C:      CGstSampleCopy,
 		Width:  uint32(width),
 		Height: uint32(height),
 	}
 
-	runtime.SetFinalizer(sample, func(gstSample *GstSample) {
+	runtime.SetFinalizer(sample, func(gstSample *Sample) {
 		C.gst_sample_unref(gstSample.C)
 	})
 
@@ -214,13 +215,13 @@ func (e *GstElement) PullSample() (sample *GstSample, err error) {
 
 //export go_callback_new_pad_thunk
 func go_callback_new_pad_thunk(Cname *C.gchar, CgstElement *C.GstElement, CgstPad *C.GstPad, Cdata C.gpointer) {
-	element := (*GstElement)(unsafe.Pointer(Cdata))
+	element := (*Element)(unsafe.Pointer(Cdata))
 	callback := element.onPadAdded
 	name := C.GoString((*C.char)(unsafe.Pointer(Cname)))
 	// element := &GstElement{
 	// 	gstElement: CgstElement,
 	// }
-	pad := &GstPad{
+	pad := &Pad{
 		pad: CgstPad,
 	}
 
@@ -228,17 +229,17 @@ func go_callback_new_pad_thunk(Cname *C.gchar, CgstElement *C.GstElement, CgstPa
 }
 
 
-func (e *GstElement) SetPadAddedCallback(callback PadAddedCallback)  {
+func (e *Element) SetPadAddedCallback(callback PadAddedCallback)  {
 	e.onPadAdded = callback
 
 	detailedSignal := (*C.gchar)(unsafe.Pointer(C.CString("pad-added")))
 	defer C.g_free(C.gpointer(unsafe.Pointer(detailedSignal)))
-	C.X_g_signal_connect(e.gstElement, detailedSignal, (*[0]byte)(C.cb_new_pad), (C.gpointer)(unsafe.Pointer(e)))
+	C.X_g_signal_connect(e.GstElement, detailedSignal, (*[0]byte)(C.cb_new_pad), (C.gpointer)(unsafe.Pointer(e)))
 }
 
 
 
-func ElementFactoryMake(factoryName string, name string) (e *GstElement, err error) {
+func ElementFactoryMake(factoryName string, name string) (e *Element, err error) {
 	var pName *C.gchar
 
 	pFactoryName := (*C.gchar)(unsafe.Pointer(C.CString(factoryName)))
@@ -256,8 +257,8 @@ func ElementFactoryMake(factoryName string, name string) (e *GstElement, err err
 		return
 	}
 
-	e = &GstElement{
-		gstElement: gstElt,
+	e = &Element{
+		GstElement: gstElt,
 	}
 
 	return

@@ -16,35 +16,31 @@ import (
 )
 
 
-
-type GstPipeline struct {
-	gstElement *C.GstElement
-	GstBin
+type Pipeline struct {
+	Bin
 }
 
 
-func ParseLaunch(pipelineDescription string,) (p *GstPipeline, err error) {
+func ParseLaunch(pipelineStr string,) (p *Pipeline, err error) {
 	var gError *C.GError
 
-	pDesc := (*C.gchar)(unsafe.Pointer(C.CString(pipelineDescription)))
+	pDesc := (*C.gchar)(unsafe.Pointer(C.CString(pipelineStr)))
 	defer C.g_free(C.gpointer(unsafe.Pointer(pDesc)))
 
 	gstElt := C.gst_parse_launch(pDesc, &gError)
 
-	p = &GstPipeline{
-		gstElement: gstElt,
-	}
-
-
 	if gError != nil {
 		err = errors.New("create pipeline error")
+		return
 	}
 
+	p = &Pipeline{}
+	p.GstElement = gstElt
 	return
 }
 
 
-func PipelineNew(name string) (e *GstPipeline, err error) {
+func PipelineNew(name string) (e *Pipeline, err error) {
 	var pName *C.gchar
 
 	if name == "" {
@@ -60,34 +56,34 @@ func PipelineNew(name string) (e *GstPipeline, err error) {
 		return
 	}
 
-	e = &GstPipeline{
-		gstElement: gstElt,
-	}
+	e = &Pipeline{}
 
-	runtime.SetFinalizer(e, func(e *GstPipeline) {
+	e.GstElement = gstElt
+
+	runtime.SetFinalizer(e, func(e *Pipeline) {
 		fmt.Printf("CLEANING PIPELINE")
-		C.gst_object_unref(C.gpointer(unsafe.Pointer(e.gstElement)))
+		C.gst_object_unref(C.gpointer(unsafe.Pointer(e.GstElement)))
 	})
 
 	return
 }
 
 
-func (p *GstPipeline) SetState(state StateOptions) C.GstStateChangeReturn {
-	return C.gst_element_set_state(p.gstElement, C.GstState(state))
+func (p *Pipeline) SetState(state StateOptions) {
+	C.gst_element_set_state(p.GstElement, C.GstState(state))
 }
 
 
 
-func (p *GstPipeline) GetBus() (bus *GstBus) {
+func (p *Pipeline) GetBus() (bus *Bus) {
 
-	CBus := C.X_gst_pipeline_get_bus(p.gstElement)
+	CBus := C.X_gst_pipeline_get_bus(p.GstElement)
 
-	bus = &GstBus{
+	bus = &Bus{
 		C: CBus,
 	}
 
-	runtime.SetFinalizer(bus, func(bus *GstBus) {
+	runtime.SetFinalizer(bus, func(bus *Bus) {
 		C.gst_object_unref(C.gpointer(unsafe.Pointer(bus.C)))
 	})
 

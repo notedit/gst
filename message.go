@@ -55,18 +55,18 @@ const (
 
 
 
-type GstMessage struct {
+type Message struct {
 	C *C.GstMessage
 }
 
-func (message *GstMessage) GetType() (messageType GstMessageTypeOption) {
+func (message *Message) GetType() (messageType GstMessageTypeOption) {
 	CMessageType := C.X_GST_MESSAGE_TYPE(message.C)
 	messageType = GstMessageTypeOption(CMessageType)
 
 	return
 }
 
-func (message *GstMessage) GetName() (name string) {
+func (message *Message) GetName() (name string) {
 	messageType := message.GetType()
 	Cname := C.gst_message_type_get_name(C.GstMessageType(messageType))
 	name = C.GoString((*C.char)(unsafe.Pointer(Cname)))
@@ -74,9 +74,9 @@ func (message *GstMessage) GetName() (name string) {
 	return
 }
 
-func (message *GstMessage) GetStructure() (structure *GstStructure) {
+func (message *Message) GetStructure() (structure *Structure) {
 	Cstructure := C.gst_message_get_structure(message.C)
-	structure = &GstStructure{
+	structure = &Structure{
 		C: Cstructure,
 	}
 

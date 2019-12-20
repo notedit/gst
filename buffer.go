@@ -17,20 +17,20 @@ import (
 )
 
 
-type GstBuffer struct {
+type Buffer struct {
 	C *C.GstBuffer
 }
 
 
 
-type GstSample struct {
+type Sample struct {
 	C      *C.GstSample
 	Width  uint32
 	Height uint32
 }
 
 
-func BufferNewAndAlloc(size uint) (gstBuffer *GstBuffer, err error) {
+func BufferNewAndAlloc(size uint) (gstBuffer *Buffer, err error) {
 	CGstBuffer := C.gst_buffer_new_allocate(nil, C.gsize(size), nil)
 
 	if CGstBuffer == nil {
@@ -38,9 +38,9 @@ func BufferNewAndAlloc(size uint) (gstBuffer *GstBuffer, err error) {
 		return
 	}
 
-	gstBuffer = &GstBuffer{C: CGstBuffer}
+	gstBuffer = &Buffer{C: CGstBuffer}
 
-	runtime.SetFinalizer(gstBuffer, func(gstBuffer *GstBuffer) {
+	runtime.SetFinalizer(gstBuffer, func(gstBuffer *Buffer) {
 		C.gst_buffer_unref(gstBuffer.C)
 	})
 
@@ -48,7 +48,7 @@ func BufferNewAndAlloc(size uint) (gstBuffer *GstBuffer, err error) {
 }
 
 
-func BufferNewWrapped(data []byte) (gstBuffer *GstBuffer, err error) {
+func BufferNewWrapped(data []byte) (gstBuffer *Buffer, err error) {
 	Cdata := (*C.gchar)(unsafe.Pointer(C.malloc(C.size_t(len(data)))))
 	C.bcopy(unsafe.Pointer(&data[0]), unsafe.Pointer(Cdata), C.size_t(len(data)))
 	CGstBuffer := C.X_gst_buffer_new_wrapped(Cdata, C.gsize(len(data)))
@@ -56,13 +56,13 @@ func BufferNewWrapped(data []byte) (gstBuffer *GstBuffer, err error) {
 		err = errors.New("could not allocate and wrap a new GstBuffer")
 		return
 	}
-	gstBuffer = &GstBuffer{C: CGstBuffer}
+	gstBuffer = &Buffer{C: CGstBuffer}
 
 	return
 }
 
 
-func BufferGetData(gstBuffer *GstBuffer) (data []byte, err error) {
+func BufferGetData(gstBuffer *Buffer) (data []byte, err error) {
 	mapInfo := (*C.GstMapInfo)(unsafe.Pointer(C.malloc(C.sizeof_GstMapInfo)))
 	defer C.free(unsafe.Pointer(mapInfo))
 

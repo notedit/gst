@@ -9,7 +9,7 @@ package gst
 import "C"
 
 
-type GstClock struct {
+type Clock struct {
 	C *C.GstClock
 }
 

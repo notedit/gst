@@ -16,26 +16,26 @@ import (
 
 
 
-type GstCaps struct {
+type Caps struct {
 	caps *C.GstCaps
 }
 
-func CapsFromString(caps string) (gstCaps *GstCaps) {
+func CapsFromString(caps string) (gstCaps *Caps) {
 	c := (*C.gchar)(unsafe.Pointer(C.CString(caps)))
 	defer C.g_free(C.gpointer(unsafe.Pointer(c)))
 	CCaps := C.gst_caps_from_string(c)
-	gstCaps = &GstCaps{
+	gstCaps = &Caps{
 		caps: CCaps,
 	}
 
-	runtime.SetFinalizer(gstCaps, func(gstCaps *GstCaps) {
+	runtime.SetFinalizer(gstCaps, func(gstCaps *Caps) {
 		C.gst_caps_unref(gstCaps.caps)
 	})
 
 	return
 }
 
-func (c *GstCaps) ToString() (str string)  {
+func (c *Caps) ToString() (str string)  {
 	CStr := C.gst_caps_to_string(c.caps)
 	defer C.g_free(C.gpointer(unsafe.Pointer(CStr)))
 	str = C.GoString((*C.char)(unsafe.Pointer(CStr)))

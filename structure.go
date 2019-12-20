@@ -15,19 +15,19 @@ import (
 )
 
 
-type GstStructure struct {
+type Structure struct {
 	C *C.GstStructure
 }
 
-func NewStructure(name string) (structure *GstStructure) {
+func NewStructure(name string) (structure *Structure) {
 	CName := (*C.gchar)(unsafe.Pointer(C.CString(name)))
 	CGstStructure := C.gst_structure_new_empty(CName)
 
-	structure = &GstStructure{
+	structure = &Structure{
 		C: CGstStructure,
 	}
 
-	runtime.SetFinalizer(structure, func(structure *GstStructure) {
+	runtime.SetFinalizer(structure, func(structure *Structure) {
 		C.gst_structure_free(structure.C)
 	})
 
@@ -35,7 +35,7 @@ func NewStructure(name string) (structure *GstStructure) {
 }
 
 
-func (s *GstStructure) SetValue(name string, value interface{}) {
+func (s *Structure) SetValue(name string, value interface{}) {
 
 	CName := (*C.gchar)(unsafe.Pointer(C.CString(name)))
 	defer C.g_free(C.gpointer(unsafe.Pointer(CName)))
@@ -61,7 +61,7 @@ func (s *GstStructure) SetValue(name string, value interface{}) {
 	return
 }
 
-func (s *GstStructure) ToString() (str string) {
+func (s *Structure) ToString() (str string) {
 	Cstr := C.gst_structure_to_string(s.C)
 	str = C.GoString((*C.char)(unsafe.Pointer(Cstr)))
 	C.g_free((C.gpointer)(unsafe.Pointer(Cstr)))

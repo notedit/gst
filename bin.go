@@ -13,42 +13,41 @@ import (
 )
 
 
-type GstBin struct {
-	gstElement *C.GstElement
-	GstElement
+type Bin struct {
+	Element
 }
 
-func BinNew() (bin *GstBin) {
+func BinNew() (bin *Bin) {
 	Celement := C.gst_bin_new(nil)
-	bin = &GstBin{
-		gstElement: Celement,
-	}
+	bin = &Bin{}
 
-	runtime.SetFinalizer(bin, func(bin *GstBin) {
-		C.gst_object_unref(C.gpointer(unsafe.Pointer(bin.gstElement)))
+	bin.GstElement = Celement
+
+	runtime.SetFinalizer(bin, func(bin *Bin) {
+		C.gst_object_unref(C.gpointer(unsafe.Pointer(bin.GstElement)))
 	})
 
 	return
 }
 
-func (b *GstBin) Add(child *GstElement) {
+func (b *Bin) Add(child *Element) {
 
-	C.X_gst_bin_add(b.gstElement, child.gstElement)
+	C.X_gst_bin_add(b.GstElement, child.GstElement)
 	return
 }
 
 
-func (b *GstBin) Remove(child *GstElement) {
+func (b *Bin) Remove(child *Element) {
 	
-	C.X_gst_bin_remove(b.gstElement, child.gstElement)
+	C.X_gst_bin_remove(b.GstElement, child.GstElement)
 	return
 }
 
 
-func (b *GstBin) AddMany(elements ...*GstElement) {
+func (b *Bin) AddMany(elements ...*Element) {
 	for _, e := range elements {
 		if e != nil {
-			C.X_gst_bin_add(b.gstElement, e.gstElement)
+			C.X_gst_bin_add(b.GstElement, e.GstElement)
 		}
 	}
 
@@ -56,13 +55,13 @@ func (b *GstBin) AddMany(elements ...*GstElement) {
 }
 
 
-func (b *GstBin) GetByName(name string) (element *GstElement) {
+func (b *Bin) GetByName(name string) (element *Element) {
 
 	n := (*C.gchar)(unsafe.Pointer(C.CString(name)))
 	defer C.g_free(C.gpointer(unsafe.Pointer(n)))
-	e := C.X_gst_bin_get_by_name(b.gstElement, n)
-	element = &GstElement{
-		gstElement: e,
+	e := C.X_gst_bin_get_by_name(b.GstElement, n)
+	element = &Element{
+		GstElement: e,
 	}
 
 	return

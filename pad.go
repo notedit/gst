@@ -4,7 +4,7 @@ package gst
 
 
 /*
-#cgo pkg-config: gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 gstreamer-plugins-base-1.0 gstreamer-video-1.0 gstreamer-audio-1.0 gstreamer-plugins-bad-1.0
+#cgo pkg-config: gstreamer-1.0
 #include "gst.h"
 */
 import "C"
@@ -48,36 +48,36 @@ const (
 
 
 
-type GstPadTemplate struct {
+type PadTemplate struct {
 	C *C.GstPadTemplate
 }
 
 
 
-type GstPad struct {
+type Pad struct {
 	pad *C.GstPad
 }
 
 
-func (p *GstPad) Link(sink *GstPad) (padLinkReturn PadLinkReturn) {
+func (p *Pad) Link(sink *Pad) (padLinkReturn PadLinkReturn) {
 	padLinkReturn = PadLinkReturn(C.gst_pad_link(p.pad, sink.pad))
 	return
 }
 
 
-func (p *GstPad) Unlink(sink *GstPad) (padLinkReturn PadLinkReturn) {
+func (p *Pad) Unlink(sink *Pad) (padLinkReturn PadLinkReturn) {
 	padLinkReturn = PadLinkReturn(C.gst_pad_unlink(p.pad, sink.pad))
 	return
 }
 
-func (p *GstPad) GetCurrentCaps() (gstCaps *GstCaps) {
+func (p *Pad) GetCurrentCaps() (gstCaps *Caps) {
 	Ccaps := C.gst_pad_get_current_caps(p.pad)
 
-	gstCaps = &GstCaps{
+	gstCaps = &Caps{
 		caps: Ccaps,
 	}
 
-	runtime.SetFinalizer(gstCaps, func(gstCaps *GstCaps) {
+	runtime.SetFinalizer(gstCaps, func(gstCaps *Caps) {
 		C.gst_caps_unref(gstCaps.caps)
 	})
 
@@ -85,7 +85,7 @@ func (p *GstPad) GetCurrentCaps() (gstCaps *GstCaps) {
 }
 
 
-func (p *GstPad) IsEOS() bool {
+func (p *Pad) IsEOS() bool {
 	// todo 
 	return false
 }
