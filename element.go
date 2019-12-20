@@ -219,6 +219,37 @@ func (e *Element) PullSample() (sample *Sample, err error) {
 	return
 }
 
+
+func (e *Element) SetObject(name string, value interface{}) {
+
+	cname := (*C.gchar)(unsafe.Pointer(C.CString(name)))
+	defer C.g_free(C.gpointer(unsafe.Pointer(cname)))
+	switch value.(type) {
+	case string:
+		str := (*C.gchar)(unsafe.Pointer(C.CString(value.(string))))
+		defer C.g_free(C.gpointer(unsafe.Pointer(str)))
+		C.X_gst_g_object_set_string(e.GstElement, cname, str)
+	case int:
+		C.X_gst_g_object_set_int(e.GstElement, cname, C.gint(value.(int)))
+	case uint32:
+		C.X_gst_g_object_set_uint(e.GstElement, cname, C.guint(value.(uint32)))
+	case bool:
+		var cvalue int
+		if value.(bool) == true {
+			cvalue = 1
+		} else {
+			cvalue = 0
+		}
+		C.X_gst_g_object_set_bool(e.GstElement, cname, C.gboolean(cvalue))
+	case *Caps:
+		caps := value.(*Caps)
+		C.X_gst_g_object_set_caps(e.GstElement, cname, caps.caps)
+	case *Structure:
+		structure := value.(*Structure)
+		C.X_gst_g_object_set_structure(e.GstElement, cname, structure.C)
+	}
+}
+
 //export go_callback_new_pad_thunk
 func go_callback_new_pad_thunk(Cname *C.gchar, CgstElement *C.GstElement, CgstPad *C.GstPad, Cdata C.gpointer) {
 	element := (*Element)(unsafe.Pointer(Cdata))
