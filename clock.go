@@ -14,4 +14,11 @@ type Clock struct {
 }
 
 
+func (c *Clock) GetClockTime() uint64  {
+
+	clocktime := C.gst_clock_get_time(c.C)
+	return uint64(clocktime)
+}
+
+
 

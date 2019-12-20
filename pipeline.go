@@ -90,23 +90,40 @@ func (p *Pipeline) GetBus() (bus *Bus) {
 	return
 }
 
-// func (p *GstPipeline) GetClock() (gstClock *GstClock) {
+func (p *Pipeline) GetClock() (clock *Clock) {
 
-// 	CElementClock := C.gst_pipeline_get_clock(p.gstElement)
+	CElementClock := C.X_gst_pipeline_get_clock(p.GstElement)
 
-// 	gstClock = &GstClock{
-// 		C: CElementClock,
-// 	}
+	clock = &Clock{
+		C: CElementClock,
+	}
 
-// 	runtime.SetFinalizer(gstClock, func(gstClock *GstClock) {
-// 		C.gst_object_unref(C.gpointer(unsafe.Pointer(gstClock.C)))
-// 	})
+	runtime.SetFinalizer(clock, func(clock *Clock) {
+		C.gst_object_unref(C.gpointer(unsafe.Pointer(clock.C)))
+	})
 
-// 	return
-// }
+	return
+}
 
 
-// TODO  
-// get/set delay 
-// get/set latency
+func (p *Pipeline) GetDelay() uint64 {
+
+	CClockTime := C.X_gst_pipeline_get_delay(p.GstElement)
+	return uint64(CClockTime)
+}
+
+
+func (p *Pipeline) GetLatency() uint64 {
+
+	CClockTime := C.X_gst_pipeline_get_latency(p.GstElement)
+	return uint64(CClockTime)
+}
+
+
+func (p *Pipeline) SetLatency(latency uint64) {
+	
+	C.X_gst_pipeline_set_latency(p.GstElement,C.GstClockTime(latency))
+}
+
+
 

@@ -16,8 +16,6 @@ extern void X_gst_g_object_set(GstElement* e, const gchar* p_name, const GValue*
 extern void X_gst_g_object_set_structure(GstElement *e, const gchar* p_name, const GstStructure *p_value);
 extern void X_gst_g_object_setv(GObject* object, guint n_properties, const gchar* names[], const GValue value[]);
 extern void X_g_signal_connect(GstElement* element, gchar* detailed_signal, void (*f)(GstElement*, GstPad*, gpointer), gpointer data);
-extern GstElement* cb_request_aux_receiver(GstElement *rtpbin, guint session, gpointer user_data);
-extern GstElement* cb_request_aux_sender(GstElement *rtpbin, guint session, gpointer user_data);
 extern void cb_new_pad(GstElement* element, GstPad* pad, gpointer data);
 extern void cb_need_data(GstElement *element, guint size, gpointer data);
 extern void cb_enough_data(GstElement *element, gpointer data);
@@ -37,5 +35,11 @@ extern void X_gst_structure_set_bool(GstStructure *structure, const gchar *name,
 extern GstEventType X_GST_EVENT_TYPE(GstEvent* event);
 extern GstMessageType X_GST_MESSAGE_TYPE(GstMessage *message);
 extern GstBus* X_gst_pipeline_get_bus(GstElement* element);
+extern GstClock * X_gst_pipeline_get_clock(GstElement* element);
+extern GstClockTime X_gst_pipeline_get_delay(GstElement* element);
+extern GstClockTime X_gst_pipeline_get_latency(GstElement* element);
+extern void X_gst_pipeline_set_latency(GstElement* element, GstClockTime clockTime);
+
+
 extern void cb_bus_message(GstBus * bus, GstMessage * message, gpointer poll_data);
 extern void X_g_signal_connect_data(gpointer instance, const gchar *detailed_signal, void (*f)(GstElement*, GstBus*, GstMessage*, gpointer), gpointer data, GClosureNotify destroy_data, GConnectFlags connect_flags);

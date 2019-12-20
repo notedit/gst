@@ -68,13 +68,6 @@ void X_gst_g_object_setv(GObject *object, guint n_properties, const gchar *names
   g_object_setv(object, n_properties, names, value);
 }
 
-GstElement* cb_request_aux_receiver(GstElement *rtpbin, guint session, gpointer user_data) {
-  //return go_callback_request_aux_receiver_thunk(rtpbin, session, user_data);
-}
-
-GstElement* cb_request_aux_sender(GstElement *rtpbin, guint session, gpointer user_data) {
-  //return go_callback_request_aux_sender_thunk(rtpbin, session, user_data);
-}
 
 void cb_new_pad(GstElement *element, GstPad *pad, gpointer data) {
   gchar *name;
@@ -179,6 +172,25 @@ GstMessageType X_GST_MESSAGE_TYPE(GstMessage *message) {
 // bus
 GstBus* X_gst_pipeline_get_bus(GstElement* element) {
 	return gst_pipeline_get_bus(GST_PIPELINE(element));
+}
+
+GstClock * X_gst_pipeline_get_clock(GstElement* element) {
+  return gst_pipeline_get_clock(GST_PIPELINE(element));
+}
+
+
+GstClockTime X_gst_pipeline_get_delay(GstElement* element) {
+  return gst_pipeline_get_delay(GST_PIPELINE(element));
+}
+
+
+GstClockTime X_gst_pipeline_get_latency(GstElement* element) {
+  return gst_pipeline_get_latency(GST_PIPELINE(element));
+}
+
+void X_gst_pipeline_set_latency(GstElement* element, GstClockTime clockTime) {
+  
+  gst_pipeline_set_latency(GST_PIPELINE(element), clockTime);
 }
 
 void cb_bus_message(GstBus * bus, GstMessage * message, gpointer poll_data) {

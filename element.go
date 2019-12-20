@@ -121,6 +121,12 @@ func (e *Element) AddPad(pad *Pad) bool {
 	return false
 }
 
+func (e *Element) GetClockBaseTime() uint64 {
+
+	CClockTime := C.gst_element_get_base_time(e.GstElement)
+
+	return uint64(CClockTime)
+}
 
 
 func (e *Element) GetClock() (gstClock *Clock) {
