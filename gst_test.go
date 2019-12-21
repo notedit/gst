@@ -2,9 +2,24 @@ package gst
 
 import (
 	"fmt"
+	"runtime"
 	"testing"
 	"time"
 )
+
+func PrintMemUsage() {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	// For info on each, see: https://golang.org/pkg/runtime/#MemStats
+	fmt.Printf("Alloc = %v MiB", bToMb(m.Alloc))
+	fmt.Printf("\tTotalAlloc = %v MiB", bToMb(m.TotalAlloc))
+	fmt.Printf("\tSys = %v MiB", bToMb(m.Sys))
+	fmt.Printf("\tNumGC = %v\n", m.NumGC)
+}
+
+func bToMb(b uint64) uint64 {
+	return b / 1024 / 1024
+}
 
 func TestPipeline(t *testing.T) {
 
@@ -85,14 +100,13 @@ func TestAppsrc(t *testing.T) {
 	i := 0
 	for {
 
-		if i > 50 {
+		if i > 100 {
 			break
 		}
 
-		//data := make([]byte, 320*240*3)
-		buffer, err := BufferNewAndAlloc(320 * 240 * 3)
+		data := make([]byte, 320*240*3)
 
-		err = element.PushBuffer(buffer)
+		err = element.PushBuffer2(data)
 
 		if err != nil {
 			t.Error("push buffer error")

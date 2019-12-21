@@ -34,7 +34,6 @@ func ParseLaunch(pipelineStr string) (p *Pipeline, err error) {
 	p.GstElement = gstElt
 
 	runtime.SetFinalizer(p, func(p *Pipeline) {
-		fmt.Printf("CLEANING PIPELINE")
 		C.gst_object_unref(C.gpointer(unsafe.Pointer(p.GstElement)))
 	})
 
@@ -62,7 +61,6 @@ func PipelineNew(name string) (e *Pipeline, err error) {
 	e.GstElement = gstElt
 
 	runtime.SetFinalizer(e, func(e *Pipeline) {
-		fmt.Printf("CLEANING PIPELINE")
 		C.gst_object_unref(C.gpointer(unsafe.Pointer(e.GstElement)))
 	})
 

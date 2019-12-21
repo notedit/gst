@@ -39,7 +39,8 @@ extern GstClock * X_gst_pipeline_get_clock(GstElement* element);
 extern GstClockTime X_gst_pipeline_get_delay(GstElement* element);
 extern GstClockTime X_gst_pipeline_get_latency(GstElement* element);
 extern void X_gst_pipeline_set_latency(GstElement* element, GstClockTime clockTime);
-
+extern GstFlowReturn X_gst_app_src_push_buffer(GstElement* element, void *buffer,int len);
+extern GstClockTime X_gst_buffer_get_duration(GstBuffer* buffer);
 
 extern void cb_bus_message(GstBus * bus, GstMessage * message, gpointer poll_data);
 extern void X_g_signal_connect_data(gpointer instance, const gchar *detailed_signal, void (*f)(GstElement*, GstBus*, GstMessage*, gpointer), gpointer data, GClosureNotify destroy_data, GConnectFlags connect_flags);

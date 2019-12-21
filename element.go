@@ -129,6 +129,22 @@ func (e *Element) GetClock() (gstClock *Clock) {
 	return
 }
 
+func (e *Element) PushBuffer2(buffer []byte) (err error) {
+
+	b := C.CBytes(buffer)
+	defer C.free(unsafe.Pointer(b))
+	var gstReturn C.GstFlowReturn
+
+	gstReturn = C.X_gst_app_src_push_buffer(e.GstElement, b, C.int(len(buffer)))
+
+	if gstReturn != C.GST_FLOW_OK {
+		err = errors.New("could not push buffer on appsrc element")
+		return
+	}
+
+	return
+}
+
 // appsrc
 func (e *Element) PushBuffer(buffer *Buffer) (err error) {
 
@@ -148,22 +164,42 @@ func (e *Element) PushBuffer(buffer *Buffer) (err error) {
 	return
 }
 
-// appsrc
-func (e *Element) PushSample(sample *Sample) (err error) {
+func (e *Element) PullSample2() (sample *GSample, err error) {
 
-	// TODO
-	// GST_IS_APP_SRC check
-
-	var gstReturn C.GstFlowReturn
-
-	gstReturn = C.gst_app_src_push_sample((*C.GstAppSrc)(unsafe.Pointer(e.GstElement)), sample.C)
-	if sample.C == nil {
-
-	}
-	if gstReturn != C.GST_FLOW_OK {
-		err = errors.New("could not push sample on appsrc element")
+	CGstSample := C.gst_app_sink_pull_sample((*C.GstAppSink)(unsafe.Pointer(e.GstElement)))
+	if CGstSample == nil {
+		err = errors.New("could not pull a sample from appsink")
 		return
 	}
+
+	gstBuffer := C.gst_sample_get_buffer(CGstSample)
+
+	if gstBuffer == nil {
+		err = errors.New("could not pull a sample from appsink")
+		return
+	}
+
+	mapInfo := (*C.GstMapInfo)(unsafe.Pointer(C.malloc(C.sizeof_GstMapInfo)))
+	defer C.free(unsafe.Pointer(mapInfo))
+
+	if int(C.X_gst_buffer_map(gstBuffer, mapInfo)) == 0 {
+		err = errors.New(fmt.Sprintf("could not map gstBuffer %#v", gstBuffer))
+		return
+	}
+
+	CData := (*[1 << 30]byte)(unsafe.Pointer(mapInfo.data))
+	data := make([]byte, int(mapInfo.size))
+	copy(data, CData[:])
+
+	duration := uint64(C.X_gst_buffer_get_duration(gstBuffer))
+
+	sample = &GSample{
+		Data:     data,
+		Duration: duration,
+	}
+
+	C.gst_buffer_unmap(gstBuffer, mapInfo)
+	C.gst_sample_unref(CGstSample)
 
 	return
 }

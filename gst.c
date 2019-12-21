@@ -120,7 +120,6 @@ void X_g_signal_emit_buffer_by_name(GstElement* element, const gchar* detailed_s
 
 GstBuffer *X_gst_buffer_new_wrapped(gchar* src, gsize len) {
   GstBuffer* dst;
-
   dst = gst_buffer_new_allocate(NULL, len, NULL);
   gst_buffer_fill(dst, 0, src, len);
 
@@ -188,6 +187,20 @@ GstClockTime X_gst_pipeline_get_latency(GstElement* element) {
 void X_gst_pipeline_set_latency(GstElement* element, GstClockTime clockTime) {
   gst_pipeline_set_latency(GST_PIPELINE(element), clockTime);
 }
+
+
+GstFlowReturn X_gst_app_src_push_buffer(GstElement* element, void *buffer,int len) {
+  
+  gpointer p = g_memdup(buffer, len);
+  GstBuffer *data = gst_buffer_new_wrapped(p, len);
+  return gst_app_src_push_buffer(GST_APP_SRC(element), data);
+  
+  // todo need gst_buffer_unref?
+}
+
+ GstClockTime X_gst_buffer_get_duration(GstBuffer* buffer) {
+   return GST_BUFFER_DURATION(buffer);
+ }
 
 void cb_bus_message(GstBus * bus, GstMessage * message, gpointer poll_data) {
   //go_callback_bus_message_thunk(bus, message, poll_data);
