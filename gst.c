@@ -189,7 +189,6 @@ GstClockTime X_gst_pipeline_get_latency(GstElement* element) {
 }
 
 void X_gst_pipeline_set_latency(GstElement* element, GstClockTime clockTime) {
-  
   gst_pipeline_set_latency(GST_PIPELINE(element), clockTime);
 }
 

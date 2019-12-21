@@ -8,56 +8,56 @@ import "C"
 
 import "unsafe"
 
-type GstMessageTypeOption C.GstMessageType
+type MessageType C.GstMessageType
 
 const (
-	MessageUnknown          GstMessageTypeOption = C.GST_MESSAGE_UNKNOWN
-	MessageEos              GstMessageTypeOption = C.GST_MESSAGE_EOS
-	MessageError            GstMessageTypeOption = C.GST_MESSAGE_ERROR
-	MessageWarning          GstMessageTypeOption = C.GST_MESSAGE_WARNING
-	MessageInfo             GstMessageTypeOption = C.GST_MESSAGE_INFO
-	MessageTag              GstMessageTypeOption = C.GST_MESSAGE_TAG
-	MessageBuffering        GstMessageTypeOption = C.GST_MESSAGE_BUFFERING
-	MessageStateChanged     GstMessageTypeOption = C.GST_MESSAGE_STATE_CHANGED
-	MessageStateDirty       GstMessageTypeOption = C.GST_MESSAGE_STATE_DIRTY
-	MessageStepDone         GstMessageTypeOption = C.GST_MESSAGE_STEP_DONE
-	MessageClockProvide     GstMessageTypeOption = C.GST_MESSAGE_CLOCK_PROVIDE
-	MessageClockLost        GstMessageTypeOption = C.GST_MESSAGE_CLOCK_LOST
-	MessageStructureChange  GstMessageTypeOption = C.GST_MESSAGE_STREAM_STATUS
-	MessageApplication      GstMessageTypeOption = C.GST_MESSAGE_APPLICATION
-	MessageElement          GstMessageTypeOption = C.GST_MESSAGE_ELEMENT
-	MessageSegmentStart     GstMessageTypeOption = C.GST_MESSAGE_SEGMENT_START
-	MessageSegmentDone      GstMessageTypeOption = C.GST_MESSAGE_SEGMENT_DONE
-	MessageDurationChanged  GstMessageTypeOption = C.GST_MESSAGE_DURATION_CHANGED
-	MessageLatency          GstMessageTypeOption = C.GST_MESSAGE_LATENCY
-	MessageAsyncStart       GstMessageTypeOption = C.GST_MESSAGE_ASYNC_START
-	MessageAsyncDone        GstMessageTypeOption = C.GST_MESSAGE_ASYNC_DONE
-	MessageRequestState     GstMessageTypeOption = C.GST_MESSAGE_REQUEST_STATE
-	MessageStepStart        GstMessageTypeOption = C.GST_MESSAGE_STEP_START
-	MessageQos              GstMessageTypeOption = C.GST_MESSAGE_QOS
-	MessageProgress         GstMessageTypeOption = C.GST_MESSAGE_PROGRESS
-	MessageToc              GstMessageTypeOption = C.GST_MESSAGE_TOC
-	MessageResetTime        GstMessageTypeOption = C.GST_MESSAGE_RESET_TIME
-	MessageStreamStart      GstMessageTypeOption = C.GST_MESSAGE_STREAM_START
-	MessageNeedContext      GstMessageTypeOption = C.GST_MESSAGE_NEED_CONTEXT
-	MessageHaveContext      GstMessageTypeOption = C.GST_MESSAGE_HAVE_CONTEXT
-	MessageExtended         GstMessageTypeOption = C.GST_MESSAGE_EXTENDED
-	MessageDeviceAdded      GstMessageTypeOption = C.GST_MESSAGE_DEVICE_ADDED
-	MessageDeviceRemoved    GstMessageTypeOption = C.GST_MESSAGE_DEVICE_REMOVED
-	MessagePropertyNotify   GstMessageTypeOption = C.GST_MESSAGE_PROPERTY_NOTIFY
-	MessageStreamCollection GstMessageTypeOption = C.GST_MESSAGE_STREAM_COLLECTION
-	MessageStreamsSelected  GstMessageTypeOption = C.GST_MESSAGE_STREAMS_SELECTED
-	MessageRedirect         GstMessageTypeOption = C.GST_MESSAGE_REDIRECT
-	MessageAny              GstMessageTypeOption = C.GST_MESSAGE_ANY
+	MessageUnknown          MessageType = C.GST_MESSAGE_UNKNOWN
+	MessageEos              MessageType = C.GST_MESSAGE_EOS
+	MessageError            MessageType = C.GST_MESSAGE_ERROR
+	MessageWarning          MessageType = C.GST_MESSAGE_WARNING
+	MessageInfo             MessageType = C.GST_MESSAGE_INFO
+	MessageTag              MessageType = C.GST_MESSAGE_TAG
+	MessageBuffering        MessageType = C.GST_MESSAGE_BUFFERING
+	MessageStateChanged     MessageType = C.GST_MESSAGE_STATE_CHANGED
+	MessageStateDirty       MessageType = C.GST_MESSAGE_STATE_DIRTY
+	MessageStepDone         MessageType = C.GST_MESSAGE_STEP_DONE
+	MessageClockProvide     MessageType = C.GST_MESSAGE_CLOCK_PROVIDE
+	MessageClockLost        MessageType = C.GST_MESSAGE_CLOCK_LOST
+	MessageStructureChange  MessageType = C.GST_MESSAGE_STREAM_STATUS
+	MessageApplication      MessageType = C.GST_MESSAGE_APPLICATION
+	MessageElement          MessageType = C.GST_MESSAGE_ELEMENT
+	MessageSegmentStart     MessageType = C.GST_MESSAGE_SEGMENT_START
+	MessageSegmentDone      MessageType = C.GST_MESSAGE_SEGMENT_DONE
+	MessageDurationChanged  MessageType = C.GST_MESSAGE_DURATION_CHANGED
+	MessageLatency          MessageType = C.GST_MESSAGE_LATENCY
+	MessageAsyncStart       MessageType = C.GST_MESSAGE_ASYNC_START
+	MessageAsyncDone        MessageType = C.GST_MESSAGE_ASYNC_DONE
+	MessageRequestState     MessageType = C.GST_MESSAGE_REQUEST_STATE
+	MessageStepStart        MessageType = C.GST_MESSAGE_STEP_START
+	MessageQos              MessageType = C.GST_MESSAGE_QOS
+	MessageProgress         MessageType = C.GST_MESSAGE_PROGRESS
+	MessageToc              MessageType = C.GST_MESSAGE_TOC
+	MessageResetTime        MessageType = C.GST_MESSAGE_RESET_TIME
+	MessageStreamStart      MessageType = C.GST_MESSAGE_STREAM_START
+	MessageNeedContext      MessageType = C.GST_MESSAGE_NEED_CONTEXT
+	MessageHaveContext      MessageType = C.GST_MESSAGE_HAVE_CONTEXT
+	MessageExtended         MessageType = C.GST_MESSAGE_EXTENDED
+	MessageDeviceAdded      MessageType = C.GST_MESSAGE_DEVICE_ADDED
+	MessageDeviceRemoved    MessageType = C.GST_MESSAGE_DEVICE_REMOVED
+	MessagePropertyNotify   MessageType = C.GST_MESSAGE_PROPERTY_NOTIFY
+	MessageStreamCollection MessageType = C.GST_MESSAGE_STREAM_COLLECTION
+	MessageStreamsSelected  MessageType = C.GST_MESSAGE_STREAMS_SELECTED
+	MessageRedirect         MessageType = C.GST_MESSAGE_REDIRECT
+	MessageAny              MessageType = C.GST_MESSAGE_ANY
 )
 
 type Message struct {
 	C *C.GstMessage
 }
 
-func (message *Message) GetType() (messageType GstMessageTypeOption) {
+func (message *Message) GetType() (messageType MessageType) {
 	CMessageType := C.X_GST_MESSAGE_TYPE(message.C)
-	messageType = GstMessageTypeOption(CMessageType)
+	messageType = MessageType(CMessageType)
 
 	return
 }
