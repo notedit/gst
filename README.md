@@ -1,2 +1,7 @@
 # gst
-golang gst binding 
+
+a small go gstreamer binding
+
+
+
+
