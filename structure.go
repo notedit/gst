@@ -1,19 +1,15 @@
 package gst
 
-
-
 /*
 #cgo pkg-config: gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 gstreamer-plugins-base-1.0 gstreamer-video-1.0 gstreamer-audio-1.0 gstreamer-plugins-bad-1.0
 #include "gst.h"
 */
 import "C"
 
-
 import (
-	"unsafe"
 	"runtime"
+	"unsafe"
 )
-
 
 type Structure struct {
 	C *C.GstStructure
@@ -33,7 +29,6 @@ func NewStructure(name string) (structure *Structure) {
 
 	return
 }
-
 
 func (s *Structure) SetValue(name string, value interface{}) {
 
@@ -68,4 +63,3 @@ func (s *Structure) ToString() (str string) {
 
 	return
 }
-

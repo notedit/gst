@@ -1,6 +1,5 @@
 package gst
 
-
 /*
 #cgo pkg-config: gstreamer-1.0
 #include "gst.h"
@@ -11,7 +10,6 @@ import (
 	"runtime"
 	"unsafe"
 )
-
 
 type Bin struct {
 	Element
@@ -36,13 +34,11 @@ func (b *Bin) Add(child *Element) {
 	return
 }
 
-
 func (b *Bin) Remove(child *Element) {
-	
+
 	C.X_gst_bin_remove(b.GstElement, child.GstElement)
 	return
 }
-
 
 func (b *Bin) AddMany(elements ...*Element) {
 	for _, e := range elements {
@@ -53,7 +49,6 @@ func (b *Bin) AddMany(elements ...*Element) {
 
 	return
 }
-
 
 func (b *Bin) GetByName(name string) (element *Element) {
 

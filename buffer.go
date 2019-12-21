@@ -1,34 +1,27 @@
 package gst
 
-
-
 /*
-#cgo pkg-config: gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 gstreamer-plugins-base-1.0 gstreamer-video-1.0 gstreamer-audio-1.0 gstreamer-plugins-bad-1.0
+#cgo pkg-config: gstreamer-1.0
 #include "gst.h"
 */
 import "C"
 
-
 import (
-	"fmt"
 	"errors"
+	"fmt"
 	"runtime"
 	"unsafe"
 )
 
-
 type Buffer struct {
 	C *C.GstBuffer
 }
-
-
 
 type Sample struct {
 	C      *C.GstSample
 	Width  uint32
 	Height uint32
 }
-
 
 func BufferNewAndAlloc(size uint) (gstBuffer *Buffer, err error) {
 	CGstBuffer := C.gst_buffer_new_allocate(nil, C.gsize(size), nil)
@@ -47,7 +40,6 @@ func BufferNewAndAlloc(size uint) (gstBuffer *Buffer, err error) {
 	return
 }
 
-
 func BufferNewWrapped(data []byte) (gstBuffer *Buffer, err error) {
 	Cdata := (*C.gchar)(unsafe.Pointer(C.malloc(C.size_t(len(data)))))
 	C.bcopy(unsafe.Pointer(&data[0]), unsafe.Pointer(Cdata), C.size_t(len(data)))
@@ -61,7 +53,6 @@ func BufferNewWrapped(data []byte) (gstBuffer *Buffer, err error) {
 	return
 }
 
-
 func BufferGetData(gstBuffer *Buffer) (data []byte, err error) {
 	mapInfo := (*C.GstMapInfo)(unsafe.Pointer(C.malloc(C.sizeof_GstMapInfo)))
 	defer C.free(unsafe.Pointer(mapInfo))
@@ -74,9 +65,6 @@ func BufferGetData(gstBuffer *Buffer) (data []byte, err error) {
 	data = make([]byte, int(mapInfo.size))
 	copy(data, CData[:])
 	C.gst_buffer_unmap(gstBuffer.C, mapInfo)
-	
+
 	return
 }
-
-
-

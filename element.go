@@ -1,27 +1,20 @@
 package gst
 
-
-
 /*
 #cgo pkg-config: gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 gstreamer-plugins-base-1.0 gstreamer-video-1.0 gstreamer-audio-1.0 gstreamer-plugins-bad-1.0
 #include "gst.h"
 */
 import "C"
 
-
-import  (
-	"fmt"
-	"unsafe"
+import (
 	"errors"
+	"fmt"
 	"reflect"
 	"runtime"
+	"unsafe"
 )
 
-
-
 type PadAddedCallback func(name string, element *Element, pad *Pad)
-
-
 
 type StateOptions int
 
@@ -33,13 +26,10 @@ const (
 	StatePlaying     StateOptions = C.GST_STATE_PLAYING
 )
 
-
 type Element struct {
-
 	GstElement *C.GstElement
 	onPadAdded PadAddedCallback
 }
-
 
 func (e *Element) Name() (name string) {
 	n := (*C.char)(unsafe.Pointer(C.gst_object_get_name((*C.GstObject)(unsafe.Pointer(e.GstElement)))))
@@ -50,7 +40,6 @@ func (e *Element) Name() (name string) {
 	return
 }
 
-
 func (e *Element) Link(dst *Element) bool {
 
 	result := C.gst_element_link(e.GstElement, dst.GstElement)
@@ -59,7 +48,6 @@ func (e *Element) Link(dst *Element) bool {
 	}
 	return false
 }
-
 
 func (e *Element) GetPadTemplate(name string) (padTemplate *PadTemplate) {
 
@@ -97,7 +85,6 @@ func (e *Element) GetRequestPad(padTemplate *PadTemplate, name string, caps *Cap
 	return
 }
 
-
 func (e *Element) GetStaticPad(name string) (pad *Pad) {
 
 	n := (*C.gchar)(unsafe.Pointer(C.CString(name)))
@@ -109,7 +96,6 @@ func (e *Element) GetStaticPad(name string) (pad *Pad) {
 
 	return
 }
-
 
 func (e *Element) AddPad(pad *Pad) bool {
 
@@ -128,7 +114,6 @@ func (e *Element) GetClockBaseTime() uint64 {
 	return uint64(CClockTime)
 }
 
-
 func (e *Element) GetClock() (gstClock *Clock) {
 
 	CElementClock := C.gst_element_get_clock(e.GstElement)
@@ -144,8 +129,7 @@ func (e *Element) GetClock() (gstClock *Clock) {
 	return
 }
 
-
-// appsrc 
+// appsrc
 func (e *Element) PushBuffer(buffer *Buffer) (err error) {
 
 	// TODO
@@ -164,8 +148,7 @@ func (e *Element) PushBuffer(buffer *Buffer) (err error) {
 	return
 }
 
-
-// appsrc 
+// appsrc
 func (e *Element) PushSample(sample *Sample) (err error) {
 
 	// TODO
@@ -219,7 +202,6 @@ func (e *Element) PullSample() (sample *Sample, err error) {
 	return
 }
 
-
 func (e *Element) SetObject(name string, value interface{}) {
 
 	cname := (*C.gchar)(unsafe.Pointer(C.CString(name)))
@@ -265,16 +247,13 @@ func go_callback_new_pad_thunk(Cname *C.gchar, CgstElement *C.GstElement, CgstPa
 	callback(name, element, pad)
 }
 
-
-func (e *Element) SetPadAddedCallback(callback PadAddedCallback)  {
+func (e *Element) SetPadAddedCallback(callback PadAddedCallback) {
 	e.onPadAdded = callback
 
 	detailedSignal := (*C.gchar)(unsafe.Pointer(C.CString("pad-added")))
 	defer C.g_free(C.gpointer(unsafe.Pointer(detailedSignal)))
 	C.X_g_signal_connect(e.GstElement, detailedSignal, (*[0]byte)(C.cb_new_pad), (C.gpointer)(unsafe.Pointer(e)))
 }
-
-
 
 func ElementFactoryMake(factoryName string, name string) (e *Element, err error) {
 	var pName *C.gchar
@@ -301,7 +280,6 @@ func ElementFactoryMake(factoryName string, name string) (e *Element, err error)
 	return
 }
 
-
 func nonCopyGoBytes(ptr uintptr, length int) []byte {
 	var slice []byte
 	header := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
@@ -314,4 +292,3 @@ func nonCopyGoBytes(ptr uintptr, length int) []byte {
 func nonCopyCString(data *C.char, size C.int) []byte {
 	return nonCopyGoBytes(uintptr(unsafe.Pointer(data)), int(size))
 }
-

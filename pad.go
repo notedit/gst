@@ -1,7 +1,4 @@
-
 package gst
-
-
 
 /*
 #cgo pkg-config: gstreamer-1.0
@@ -33,7 +30,6 @@ func (p PadDirection) String() string {
 	panic("Wrong value of PadDirection variable")
 }
 
-
 type PadLinkReturn int
 
 const (
@@ -46,24 +42,18 @@ const (
 	PadLinkRefused                      = C.GST_PAD_LINK_REFUSED
 )
 
-
-
 type PadTemplate struct {
 	C *C.GstPadTemplate
 }
-
-
 
 type Pad struct {
 	pad *C.GstPad
 }
 
-
 func (p *Pad) Link(sink *Pad) (padLinkReturn PadLinkReturn) {
 	padLinkReturn = PadLinkReturn(C.gst_pad_link(p.pad, sink.pad))
 	return
 }
-
 
 func (p *Pad) Unlink(sink *Pad) (padLinkReturn PadLinkReturn) {
 	padLinkReturn = PadLinkReturn(C.gst_pad_unlink(p.pad, sink.pad))
@@ -84,8 +74,7 @@ func (p *Pad) GetCurrentCaps() (gstCaps *Caps) {
 	return
 }
 
-
 func (p *Pad) IsEOS() bool {
-	// todo 
+	// todo
 	return false
 }

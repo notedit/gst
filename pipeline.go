@@ -1,7 +1,5 @@
 package gst
 
-
-
 /*
 #cgo pkg-config: gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 gstreamer-plugins-base-1.0 gstreamer-video-1.0 gstreamer-audio-1.0 gstreamer-plugins-bad-1.0
 #include "gst.h"
@@ -9,19 +7,17 @@ package gst
 import "C"
 
 import (
+	"errors"
 	"fmt"
 	"runtime"
 	"unsafe"
-	"errors"
 )
-
 
 type Pipeline struct {
 	Bin
 }
 
-
-func ParseLaunch(pipelineStr string,) (p *Pipeline, err error) {
+func ParseLaunch(pipelineStr string) (p *Pipeline, err error) {
 	var gError *C.GError
 
 	pDesc := (*C.gchar)(unsafe.Pointer(C.CString(pipelineStr)))
@@ -36,9 +32,14 @@ func ParseLaunch(pipelineStr string,) (p *Pipeline, err error) {
 
 	p = &Pipeline{}
 	p.GstElement = gstElt
+
+	runtime.SetFinalizer(p, func(p *Pipeline) {
+		fmt.Printf("CLEANING PIPELINE")
+		C.gst_object_unref(C.gpointer(unsafe.Pointer(p.GstElement)))
+	})
+
 	return
 }
-
 
 func PipelineNew(name string) (e *Pipeline, err error) {
 	var pName *C.gchar
@@ -68,12 +69,9 @@ func PipelineNew(name string) (e *Pipeline, err error) {
 	return
 }
 
-
 func (p *Pipeline) SetState(state StateOptions) {
 	C.gst_element_set_state(p.GstElement, C.GstState(state))
 }
-
-
 
 func (p *Pipeline) GetBus() (bus *Bus) {
 
@@ -105,13 +103,11 @@ func (p *Pipeline) GetClock() (clock *Clock) {
 	return
 }
 
-
 func (p *Pipeline) GetDelay() uint64 {
 
 	CClockTime := C.X_gst_pipeline_get_delay(p.GstElement)
 	return uint64(CClockTime)
 }
-
 
 func (p *Pipeline) GetLatency() uint64 {
 
@@ -119,11 +115,7 @@ func (p *Pipeline) GetLatency() uint64 {
 	return uint64(CClockTime)
 }
 
-
 func (p *Pipeline) SetLatency(latency uint64) {
-	
-	C.X_gst_pipeline_set_latency(p.GstElement,C.GstClockTime(latency))
+
+	C.X_gst_pipeline_set_latency(p.GstElement, C.GstClockTime(latency))
 }
-
-
-
