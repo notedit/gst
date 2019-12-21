@@ -45,3 +45,7 @@ func (b *Bus) Pull(messageType MessageType) (message *Message) {
 
 	return
 }
+
+func (b *Bus) HavePending() bool {
+	return C.gst_bus_have_pending(b.C) != 0
+}

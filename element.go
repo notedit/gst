@@ -202,6 +202,17 @@ func (e *Element) PullSample() (sample *Sample, err error) {
 	return
 }
 
+// appsink
+func (e *Element) IsEOS() bool {
+
+	Cbool := C.gst_app_sink_is_eos((*C.GstAppSink)(unsafe.Pointer(e.GstElement)))
+	if Cbool == 1 {
+		return true
+	}
+
+	return false
+}
+
 func (e *Element) SetObject(name string, value interface{}) {
 
 	cname := (*C.gchar)(unsafe.Pointer(C.CString(name)))

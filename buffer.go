@@ -9,7 +9,6 @@ import "C"
 import (
 	"errors"
 	"fmt"
-	"runtime"
 	"unsafe"
 )
 
@@ -32,10 +31,6 @@ func BufferNewAndAlloc(size uint) (gstBuffer *Buffer, err error) {
 	}
 
 	gstBuffer = &Buffer{C: CGstBuffer}
-
-	runtime.SetFinalizer(gstBuffer, func(gstBuffer *Buffer) {
-		C.gst_buffer_unref(gstBuffer.C)
-	})
 
 	return
 }

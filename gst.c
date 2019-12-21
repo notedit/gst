@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <gst/gst.h>
-#include <gst/app/gstappsrc.h>
-
 #include "gst.h"
 
 void X_gst_shim_init() {
