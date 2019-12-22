@@ -16,12 +16,6 @@ type Buffer struct {
 	C *C.GstBuffer
 }
 
-type Sample struct {
-	C      *C.GstSample
-	Width  uint32
-	Height uint32
-}
-
 func BufferNewAndAlloc(size uint) (gstBuffer *Buffer, err error) {
 	CGstBuffer := C.gst_buffer_new_allocate(nil, C.gsize(size), nil)
 

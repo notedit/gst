@@ -23,6 +23,8 @@ func bToMb(b uint64) uint64 {
 
 func TestPipeline(t *testing.T) {
 
+	PrintMemUsage()
+
 	pipeline, err := ParseLaunch("videotestsrc  ! capsfilter name=filter ! autovideosink")
 
 	if err != nil {
@@ -38,47 +40,17 @@ func TestPipeline(t *testing.T) {
 		t.Error("pipe find element error")
 	}
 
-	fmt.Println(element.Name())
+	PrintMemUsage()
 
-}
+	time.Sleep(1000000)
 
-func TestAppsink(t *testing.T) {
-
-	pipeline, err := ParseLaunch("videotestsrc  num-buffers=15 ! appsink name=sink")
-
-	if err != nil {
-		t.Error("pipeline create error", err)
-		t.FailNow()
-	}
-
-	fmt.Println(pipeline)
-
-	element := pipeline.GetByName("sink")
-
-	pipeline.SetState(StatePlaying)
-
-	for {
-
-		gstSample, err := element.PullSample()
-		if err != nil {
-			if element.IsEOS() == true {
-				fmt.Println("eos")
-				return
-			} else {
-				fmt.Println(err)
-				continue
-			}
-		}
-		fmt.Println("got sample", gstSample)
-
-	}
 }
 
 func TestAppsrc(t *testing.T) {
 
-	pipeline, err := ParseLaunch("appsrc name=mysource format=time is-live=true do-timestamp=true ! videoconvert ! autovideosink")
+	PrintMemUsage()
 
-	fmt.Println("push one")
+	pipeline, err := ParseLaunch("appsrc name=mysource format=time is-live=true do-timestamp=true ! videoconvert ! autovideosink")
 
 	if err != nil {
 		t.Error("pipeline create error", err)
@@ -93,9 +65,7 @@ func TestAppsrc(t *testing.T) {
 
 	pipeline.SetState(StatePlaying)
 
-	fmt.Println("push one")
-
-	time.Sleep(1000)
+	time.Sleep(100000000)
 
 	i := 0
 	for {
@@ -106,7 +76,7 @@ func TestAppsrc(t *testing.T) {
 
 		data := make([]byte, 320*240*3)
 
-		err = element.PushBuffer2(data)
+		err := element.PushBuffer(data)
 
 		if err != nil {
 			t.Error("push buffer error")
@@ -117,6 +87,102 @@ func TestAppsrc(t *testing.T) {
 		fmt.Println("push one")
 
 		i += 1
+
+		time.Sleep(50000000)
 	}
 
+	pipeline.SetState(StateNull)
+
+	pipeline = nil
+	element = nil
+	videoCap = nil
+
+	PrintMemUsage()
+
+}
+
+func TestAppsink(t *testing.T) {
+
+	PrintMemUsage()
+
+	pipeline, err := ParseLaunch("videotestsrc  num-buffers=100 ! appsink name=sink")
+
+	if err != nil {
+		t.Error("pipeline create error", err)
+		t.FailNow()
+	}
+
+	element := pipeline.GetByName("sink")
+
+	pipeline.SetState(StatePlaying)
+
+	time.Sleep(1000000)
+
+	for {
+
+		sample, err := element.PullSample()
+		if err != nil {
+			if element.IsEOS() == true {
+				fmt.Println("eos")
+				return
+			} else {
+				fmt.Println(err)
+				continue
+			}
+		}
+		fmt.Println("got sample", sample.Duration)
+
+	}
+
+	pipeline.SetState(StateNull)
+
+	pipeline = nil
+	element = nil
+
+	PrintMemUsage()
+
+	time.Sleep(1000000)
+}
+
+func TestAppsink2(t *testing.T) {
+
+	PrintMemUsage()
+
+	pipeline, err := ParseLaunch("videotestsrc  num-buffers=100 ! appsink name=sink")
+
+	if err != nil {
+		t.Error("pipeline create error", err)
+		t.FailNow()
+	}
+
+	element := pipeline.GetByName("sink")
+
+	pipeline.SetState(StatePlaying)
+
+	time.Sleep(1000000)
+
+	for {
+
+		sample, err := element.PullSample()
+		if err != nil {
+			if element.IsEOS() == true {
+				fmt.Println("eos")
+				return
+			} else {
+				fmt.Println(err)
+				continue
+			}
+		}
+		fmt.Println("got sample", sample.Duration)
+
+	}
+
+	pipeline.SetState(StateNull)
+
+	pipeline = nil
+	element = nil
+
+	PrintMemUsage()
+
+	time.Sleep(1000000)
 }

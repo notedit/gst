@@ -129,13 +129,14 @@ func (e *Element) GetClock() (gstClock *Clock) {
 	return
 }
 
-func (e *Element) PushBuffer2(buffer []byte) (err error) {
+func (e *Element) PushBuffer(data []byte) (err error) {
 
-	b := C.CBytes(buffer)
-	defer C.free(unsafe.Pointer(b))
+	b := C.CBytes(data)
+	defer C.free(b)
+
 	var gstReturn C.GstFlowReturn
 
-	gstReturn = C.X_gst_app_src_push_buffer(e.GstElement, b, C.int(len(buffer)))
+	gstReturn = C.X_gst_app_src_push_buffer(e.GstElement, b, C.int(len(data)))
 
 	if gstReturn != C.GST_FLOW_OK {
 		err = errors.New("could not push buffer on appsrc element")
@@ -145,26 +146,7 @@ func (e *Element) PushBuffer2(buffer []byte) (err error) {
 	return
 }
 
-// appsrc
-func (e *Element) PushBuffer(buffer *Buffer) (err error) {
-
-	// TODO
-	// GST_IS_APP_SRC check
-	var gstReturn C.GstFlowReturn
-
-	gstReturn = C.gst_app_src_push_buffer((*C.GstAppSrc)(unsafe.Pointer(e.GstElement)), buffer.C)
-	if buffer.C == nil {
-
-	}
-	if gstReturn != C.GST_FLOW_OK {
-		err = errors.New("could not push buffer on appsrc element")
-		return
-	}
-
-	return
-}
-
-func (e *Element) PullSample2() (sample *GSample, err error) {
+func (e *Element) PullSample() (sample *Sample, err error) {
 
 	CGstSample := C.gst_app_sink_pull_sample((*C.GstAppSink)(unsafe.Pointer(e.GstElement)))
 	if CGstSample == nil {
@@ -193,47 +175,13 @@ func (e *Element) PullSample2() (sample *GSample, err error) {
 
 	duration := uint64(C.X_gst_buffer_get_duration(gstBuffer))
 
-	sample = &GSample{
+	sample = &Sample{
 		Data:     data,
 		Duration: duration,
 	}
 
 	C.gst_buffer_unmap(gstBuffer, mapInfo)
 	C.gst_sample_unref(CGstSample)
-
-	return
-}
-
-// appsink
-func (e *Element) PullSample() (sample *Sample, err error) {
-
-	// TODO
-	// GST_IS_APP_SRC check
-
-	CGstSample := C.gst_app_sink_pull_sample((*C.GstAppSink)(unsafe.Pointer(e.GstElement)))
-	if CGstSample == nil {
-		err = errors.New("could not pull a sample from appsink")
-		return
-	}
-	CGstSampleCopy := C.gst_sample_copy(CGstSample)
-
-	C.gst_sample_unref(CGstSample)
-
-	var width, height C.gint
-	CCaps := C.gst_sample_get_caps(CGstSampleCopy)
-	CCStruct := C.gst_caps_get_structure(CCaps, 0)
-	C.gst_structure_get_int(CCStruct, (*C.gchar)(unsafe.Pointer(C.CString("width"))), &width)
-	C.gst_structure_get_int(CCStruct, (*C.gchar)(unsafe.Pointer(C.CString("height"))), &height)
-
-	sample = &Sample{
-		C:      CGstSampleCopy,
-		Width:  uint32(width),
-		Height: uint32(height),
-	}
-
-	runtime.SetFinalizer(sample, func(gstSample *Sample) {
-		C.gst_sample_unref(gstSample.C)
-	})
 
 	return
 }

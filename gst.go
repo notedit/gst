@@ -15,7 +15,7 @@ func init() {
 	C.X_gst_shim_init()
 }
 
-type GSample struct {
+type Sample struct {
 	Data     []byte
 	Duration uint64
 }

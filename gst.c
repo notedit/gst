@@ -101,7 +101,11 @@ void X_g_signal_connect_data(gpointer instance, const gchar *detailed_signal, vo
 }
 
 GstElement *X_gst_bin_get_by_name(GstElement* element, const gchar* name) {
-  return gst_bin_get_by_name(GST_BIN(element), name);
+  GstElement *e = gst_bin_get_by_name(GST_BIN(element), name);
+  if (e != NULL) {
+    //gst_object_unref(e);
+  }
+  return e;
 }
 
 GstElementClass *X_GST_ELEMENT_GET_CLASS(GstElement *element) {
@@ -120,6 +124,7 @@ void X_g_signal_emit_buffer_by_name(GstElement* element, const gchar* detailed_s
 
 GstBuffer *X_gst_buffer_new_wrapped(gchar* src, gsize len) {
   GstBuffer* dst;
+
   dst = gst_buffer_new_allocate(NULL, len, NULL);
   gst_buffer_fill(dst, 0, src, len);
 
@@ -193,9 +198,8 @@ GstFlowReturn X_gst_app_src_push_buffer(GstElement* element, void *buffer,int le
   
   gpointer p = g_memdup(buffer, len);
   GstBuffer *data = gst_buffer_new_wrapped(p, len);
-  return gst_app_src_push_buffer(GST_APP_SRC(element), data);
   
-  // todo need gst_buffer_unref?
+  return gst_app_src_push_buffer(GST_APP_SRC(element), data);
 }
 
  GstClockTime X_gst_buffer_get_duration(GstBuffer* buffer) {
