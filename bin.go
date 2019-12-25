@@ -55,6 +55,7 @@ func (b *Bin) GetByName(name string) (element *Element) {
 	n := (*C.gchar)(unsafe.Pointer(C.CString(name)))
 	defer C.g_free(C.gpointer(unsafe.Pointer(n)))
 	e := C.X_gst_bin_get_by_name(b.GstElement, n)
+	
 	element = &Element{
 		GstElement: e,
 	}

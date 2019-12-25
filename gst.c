@@ -73,22 +73,10 @@ void cb_new_pad(GstElement *element, GstPad *pad, gpointer data) {
   printf("[ GST ] A new pad %s was created\n", name);
 
   /* here, you would setup a new pad link for the newly created pad */
-  go_callback_new_pad_thunk(name, element, pad, data);
+  go_callback_new_pad(name, element, pad, data);
   g_free(name);
 }
 
-void cb_need_data(GstElement *element, guint size, gpointer data) {
-  //go_callback_need_data_thunk(element, size, data);
-}
-
-void cb_enough_data(GstElement *element, gpointer data) {
-  //go_callback_enough_data_thunk(element, data);
-}
-
-gboolean cb_pad_event(GstPad *pad, GstObject *parent, GstEvent *event) {
-  //go_callback_pad_event_thunk(pad, parent, event);
-  return TRUE;
-}
 
 void X_g_signal_connect(GstElement* element, gchar* detailed_signal, void (*f)(GstElement*, GstPad*, gpointer), gpointer data) {
   printf("[ GST ] g_signal_connect called with signal %s\n", detailed_signal);
@@ -144,23 +132,41 @@ void X_gst_element_set_start_time_none(GstElement *element) {
 }
 
 void X_gst_structure_set_string(GstStructure *structure, const gchar *name, gchar *value) {
-  gst_structure_set(structure, name, value);
+  GValue gv;
+  memset(&gv, 0, sizeof(GValue));
+  g_value_init(&gv, G_TYPE_STRING);
+  g_value_set_string(&gv, value);
+  gst_structure_set_value(structure, name, &gv);
 }
 
 void X_gst_structure_set_int(GstStructure *structure, const gchar *name, int value) {
-  gst_structure_set(structure, name, value);
+
+  GValue gv;
+  memset(&gv, 0, sizeof(GValue));
+  g_value_init(&gv, G_TYPE_INT);
+  g_value_set_int(&gv, value);
+  gst_structure_set_value(structure, name, &gv);
 }
 
 void X_gst_structure_set_uint(GstStructure *structure, const gchar *name, guint value) {
-  gst_structure_set(structure, name, value);
+
+  GValue gv;
+  memset(&gv, 0, sizeof(GValue));
+  g_value_init(&gv, G_TYPE_UINT);
+  g_value_set_uint(&gv, value);
+  gst_structure_set_value(structure, name, &gv);
 }
 
 void X_gst_structure_set_bool(GstStructure *structure, const gchar *name, gboolean value) {
-  gst_structure_set(structure, name, value);
+
+  GValue gv;
+  memset(&gv, 0, sizeof(GValue));
+  g_value_init(&gv, G_TYPE_BOOLEAN);
+  g_value_set_boolean(&gv, value);
+  gst_structure_set_value(structure, name, &gv);
 }
 
 // events
-
 GstEventType X_GST_EVENT_TYPE(GstEvent* event) {
     return GST_EVENT_CAST(event)->type;
 }

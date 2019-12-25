@@ -1,7 +1,7 @@
 package gst
 
 /*
-#cgo pkg-config: gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 gstreamer-plugins-base-1.0 gstreamer-video-1.0 gstreamer-audio-1.0 gstreamer-plugins-bad-1.0
+#cgo pkg-config: gstreamer-1.0
 #include "gst.h"
 */
 import "C"
@@ -24,6 +24,18 @@ func MainLoopNew() (loop *GMainLoop) {
 	return
 }
 
-func (loop *GMainLoop) Run() {
-	C.g_main_loop_run(loop.C)
+func (l *GMainLoop) Run() {
+	C.g_main_loop_run(l.C)
+}
+
+func (l *GMainLoop) Quit() {
+	C.g_main_loop_quit(l.C)
+}
+
+func (l *GMainLoop) IsRuning() bool {
+	Cbool := C.g_main_loop_is_running(l.C)
+	if Cbool == 1 {
+		return true
+	}
+	return false
 }

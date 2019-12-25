@@ -4,6 +4,11 @@
 #include <gst/app/gstappsink.h>
 #include <string.h>
 
+
+
+extern void go_callback_new_pad(gchar *name,GstElement *element,GstPad *pad, gpointer data);
+
+
 extern void X_gst_shim_init();
 extern void X_gst_bin_add(GstElement* p, GstElement* element1);
 extern void X_gst_bin_remove(GstElement *p, GstElement *element);
@@ -17,8 +22,6 @@ extern void X_gst_g_object_set_structure(GstElement *e, const gchar* p_name, con
 extern void X_gst_g_object_setv(GObject* object, guint n_properties, const gchar* names[], const GValue value[]);
 extern void X_g_signal_connect(GstElement* element, gchar* detailed_signal, void (*f)(GstElement*, GstPad*, gpointer), gpointer data);
 extern void cb_new_pad(GstElement* element, GstPad* pad, gpointer data);
-extern void cb_need_data(GstElement *element, guint size, gpointer data);
-extern void cb_enough_data(GstElement *element, gpointer data);
 extern gboolean cb_pad_event(GstPad *pad, GstObject *parent, GstEvent *event);
 extern GstElement *X_gst_bin_get_by_name(GstElement* element, const gchar* name);
 extern GstElementClass *X_GST_ELEMENT_GET_CLASS(GstElement *element);

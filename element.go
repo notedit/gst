@@ -1,7 +1,7 @@
 package gst
 
 /*
-#cgo pkg-config: gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 gstreamer-plugins-base-1.0 gstreamer-video-1.0 gstreamer-audio-1.0 gstreamer-plugins-bad-1.0
+#cgo pkg-config: gstreamer-1.0 gstreamer-app-1.0
 #include "gst.h"
 */
 import "C"
@@ -227,14 +227,12 @@ func (e *Element) SetObject(name string, value interface{}) {
 	}
 }
 
-//export go_callback_new_pad_thunk
-func go_callback_new_pad_thunk(Cname *C.gchar, CgstElement *C.GstElement, CgstPad *C.GstPad, Cdata C.gpointer) {
+//export go_callback_new_pad
+func go_callback_new_pad(Cname *C.gchar, CgstElement *C.GstElement, CgstPad *C.GstPad, Cdata C.gpointer) {
 	element := (*Element)(unsafe.Pointer(Cdata))
 	callback := element.onPadAdded
 	name := C.GoString((*C.char)(unsafe.Pointer(Cname)))
-	// element := &GstElement{
-	// 	gstElement: CgstElement,
-	// }
+	// todo 
 	pad := &Pad{
 		pad: CgstPad,
 	}
