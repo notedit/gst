@@ -3,6 +3,7 @@ package gst
 import (
 	"fmt"
 	"runtime"
+	"strings"
 	"testing"
 	"time"
 )
@@ -70,7 +71,7 @@ func TestAppsrc(t *testing.T) {
 	i := 0
 	for {
 
-		if i > 100 {
+		if i > 10 {
 			break
 		}
 
@@ -105,7 +106,7 @@ func TestAppsink(t *testing.T) {
 
 	PrintMemUsage()
 
-	pipeline, err := ParseLaunch("videotestsrc  num-buffers=100 ! appsink name=sink")
+	pipeline, err := ParseLaunch("videotestsrc  num-buffers=10 ! appsink name=sink")
 
 	if err != nil {
 		t.Error("pipeline create error", err)
@@ -144,45 +145,46 @@ func TestAppsink(t *testing.T) {
 	time.Sleep(1000000)
 }
 
-func TestAppsink2(t *testing.T) {
+func TestDynamicPipeline(t *testing.T) {
 
-	PrintMemUsage()
-
-	pipeline, err := ParseLaunch("videotestsrc  num-buffers=100 ! appsink name=sink")
+	pipeline, err := PipelineNew("test-pipeline")
 
 	if err != nil {
-		t.Error("pipeline create error", err)
-		t.FailNow()
+		panic(err)
 	}
 
-	element := pipeline.GetByName("sink")
+	source, _ := ElementFactoryMake("uridecodebin", "source")
+	convert, _ := ElementFactoryMake("audioconvert", "convert")
+	sink, _ := ElementFactoryMake("autoaudiosink", "sink")
+
+	pipeline.Add(source)
+	pipeline.Add(convert)
+	pipeline.Add(sink)
+
+	convert.Link(sink)
+
+	source.SetObject("uri", "https://www.freedesktop.org/software/gstreamer-sdk/data/media/sintel_trailer-480p.webm")
+
+	source.SetPadAddedCallback(func(element *Element, pad *Pad) {
+		capstr := pad.GetCurrentCaps().ToString()
+
+		if strings.HasPrefix(capstr, "audio") {
+			sinkpad := convert.GetStaticPad("sink")
+			pad.Link(sinkpad)
+		}
+
+	})
 
 	pipeline.SetState(StatePlaying)
 
-	time.Sleep(1000000)
+	bus := pipeline.GetBus()
 
 	for {
-
-		sample, err := element.PullSample()
-		if err != nil {
-			if element.IsEOS() == true {
-				fmt.Println("eos")
-				return
-			} else {
-				fmt.Println(err)
-				continue
-			}
+		message := bus.Pull(MessageError | MessageEos)
+		fmt.Println("message:", message.GetName())
+		if message.GetType() == MessageEos {
+			break
 		}
-		fmt.Println("got sample", sample.Duration)
 
 	}
-
-	pipeline.SetState(StateNull)
-
-	pipeline = nil
-	element = nil
-
-	PrintMemUsage()
-
-	time.Sleep(1000000)
 }

@@ -6,7 +6,15 @@
 
 
 
-extern void go_callback_new_pad(gchar *name,GstElement *element,GstPad *pad, gpointer data);
+
+typedef struct ElementUserData {
+    guint64 callbackId;
+} ElementUserData;
+
+
+
+
+extern void go_callback_new_pad(GstElement *element,GstPad *pad, guint64 callbackId);
 
 
 extern void X_gst_shim_init();
@@ -20,7 +28,7 @@ extern void X_gst_g_object_set_caps(GstElement *e, const gchar* p_name, const Gs
 extern void X_gst_g_object_set(GstElement* e, const gchar* p_name, const GValue* p_value);
 extern void X_gst_g_object_set_structure(GstElement *e, const gchar* p_name, const GstStructure *p_value);
 extern void X_gst_g_object_setv(GObject* object, guint n_properties, const gchar* names[], const GValue value[]);
-extern void X_g_signal_connect(GstElement* element, gchar* detailed_signal, void (*f)(GstElement*, GstPad*, gpointer), gpointer data);
+extern void X_g_signal_connect(GstElement* element, gchar* detailed_signal, guint64 callbackId);
 extern void cb_new_pad(GstElement* element, GstPad* pad, gpointer data);
 extern gboolean cb_pad_event(GstPad *pad, GstObject *parent, GstEvent *event);
 extern GstElement *X_gst_bin_get_by_name(GstElement* element, const gchar* name);
@@ -45,5 +53,6 @@ extern void X_gst_pipeline_set_latency(GstElement* element, GstClockTime clockTi
 extern GstFlowReturn X_gst_app_src_push_buffer(GstElement* element, void *buffer,int len);
 extern GstClockTime X_gst_buffer_get_duration(GstBuffer* buffer);
 
+extern gchar* X_gst_pad_get_name(GstPad* pad);
 extern void cb_bus_message(GstBus * bus, GstMessage * message, gpointer poll_data);
 extern void X_g_signal_connect_data(gpointer instance, const gchar *detailed_signal, void (*f)(GstElement*, GstBus*, GstMessage*, gpointer), gpointer data, GClosureNotify destroy_data, GConnectFlags connect_flags);

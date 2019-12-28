@@ -67,20 +67,18 @@ void X_gst_g_object_setv(GObject *object, guint n_properties, const gchar *names
 
 
 void cb_new_pad(GstElement *element, GstPad *pad, gpointer data) {
-  gchar *name;
-
-  name = gst_pad_get_name (pad);
-  printf("[ GST ] A new pad %s was created\n", name);
-
-  /* here, you would setup a new pad link for the newly created pad */
-  go_callback_new_pad(name, element, pad, data);
-  g_free(name);
+  ElementUserData *d = (ElementUserData *)data;
+  go_callback_new_pad(element, pad, d->callbackId);
 }
 
 
-void X_g_signal_connect(GstElement* element, gchar* detailed_signal, void (*f)(GstElement*, GstPad*, gpointer), gpointer data) {
+void X_g_signal_connect(GstElement* element, gchar* detailed_signal, guint64 callbackId) {
   printf("[ GST ] g_signal_connect called with signal %s\n", detailed_signal);
-  g_signal_connect(element, detailed_signal, G_CALLBACK(f), data);
+  
+  ElementUserData *d = calloc(1, sizeof(ElementUserData));
+  d->callbackId = callbackId;
+
+  g_signal_connect(element, detailed_signal, G_CALLBACK(cb_new_pad), d);
 }
 
 void X_g_signal_connect_data(gpointer instance, const gchar *detailed_signal, void (*f)(GstElement*, GstBus*, GstMessage*, gpointer), gpointer data, GClosureNotify destroy_data, GConnectFlags connect_flags) {
@@ -91,7 +89,7 @@ void X_g_signal_connect_data(gpointer instance, const gchar *detailed_signal, vo
 GstElement *X_gst_bin_get_by_name(GstElement* element, const gchar* name) {
   GstElement *e = gst_bin_get_by_name(GST_BIN(element), name);
   if (e != NULL) {
-    //gst_object_unref(e);
+
   }
   return e;
 }
@@ -208,9 +206,13 @@ GstFlowReturn X_gst_app_src_push_buffer(GstElement* element, void *buffer,int le
   return gst_app_src_push_buffer(GST_APP_SRC(element), data);
 }
 
- GstClockTime X_gst_buffer_get_duration(GstBuffer* buffer) {
-   return GST_BUFFER_DURATION(buffer);
- }
+GstClockTime X_gst_buffer_get_duration(GstBuffer* buffer) {
+  return GST_BUFFER_DURATION(buffer);
+}
+
+gchar* X_gst_pad_get_name(GstPad* pad) {
+  return gst_pad_get_name(pad);
+}
 
 void cb_bus_message(GstBus * bus, GstMessage * message, gpointer poll_data) {
   //go_callback_bus_message_thunk(bus, message, poll_data);

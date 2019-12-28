@@ -8,6 +8,7 @@ import "C"
 
 import (
 	"runtime"
+	"unsafe"
 )
 
 type PadDirection C.GstPadDirection
@@ -70,11 +71,24 @@ func (p *Pad) GetCurrentCaps() (gstCaps *Caps) {
 	runtime.SetFinalizer(gstCaps, func(gstCaps *Caps) {
 		C.gst_caps_unref(gstCaps.caps)
 	})
-
 	return
 }
 
+func (p *Pad) Name() string {
+
+	CStr := C.X_gst_pad_get_name(p.pad)
+	defer C.g_free(C.gpointer(unsafe.Pointer(CStr)))
+	str := C.GoString((*C.char)(unsafe.Pointer(CStr)))
+
+	return str
+}
+
 func (p *Pad) IsEOS() bool {
+	// todo
+	return false
+}
+
+func (p *Pad) IsLinked() bool {
 	// todo
 	return false
 }

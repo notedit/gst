@@ -34,6 +34,12 @@ func (c *Caps) ToString() (str string) {
 	CStr := C.gst_caps_to_string(c.caps)
 	defer C.g_free(C.gpointer(unsafe.Pointer(CStr)))
 	str = C.GoString((*C.char)(unsafe.Pointer(CStr)))
+	return
+}
 
+func (c *Caps) String() (str string) {
+	CStr := C.gst_caps_to_string(c.caps)
+	defer C.g_free(C.gpointer(unsafe.Pointer(CStr)))
+	str = C.GoString((*C.char)(unsafe.Pointer(CStr)))
 	return
 }

@@ -9,12 +9,19 @@ import "C"
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"reflect"
 	"runtime"
+	"sync"
 	"unsafe"
 )
 
-type PadAddedCallback func(name string, element *Element, pad *Pad)
+var (
+	mutex         sync.Mutex
+	callbackStore = map[uint64]*Element{}
+)
+
+type PadAddedCallback func(element *Element, pad *Pad)
 
 type StateOptions int
 
@@ -29,6 +36,7 @@ const (
 type Element struct {
 	GstElement *C.GstElement
 	onPadAdded PadAddedCallback
+	callbackID uint64
 }
 
 func (e *Element) Name() (name string) {
@@ -227,25 +235,63 @@ func (e *Element) SetObject(name string, value interface{}) {
 	}
 }
 
+func (e *Element) cleanCallback() {
+
+	if e.onPadAdded == nil {
+		return
+	}
+
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	delete(callbackStore, e.callbackID)
+}
+
 //export go_callback_new_pad
-func go_callback_new_pad(Cname *C.gchar, CgstElement *C.GstElement, CgstPad *C.GstPad, Cdata C.gpointer) {
-	element := (*Element)(unsafe.Pointer(Cdata))
+func go_callback_new_pad(CgstElement *C.GstElement, CgstPad *C.GstPad, callbackID C.guint64) {
+
+	mutex.Lock()
+	element := callbackStore[uint64(callbackID)]
+	mutex.Unlock()
+
+	if element == nil {
+		return
+	}
+
 	callback := element.onPadAdded
-	name := C.GoString((*C.char)(unsafe.Pointer(Cname)))
-	// todo 
+
 	pad := &Pad{
 		pad: CgstPad,
 	}
 
-	callback(name, element, pad)
+	callback(element, pad)
 }
 
 func (e *Element) SetPadAddedCallback(callback PadAddedCallback) {
 	e.onPadAdded = callback
 
-	detailedSignal := (*C.gchar)(unsafe.Pointer(C.CString("pad-added")))
-	defer C.g_free(C.gpointer(unsafe.Pointer(detailedSignal)))
-	C.X_g_signal_connect(e.GstElement, detailedSignal, (*[0]byte)(C.cb_new_pad), (C.gpointer)(unsafe.Pointer(e)))
+	var callbackID uint64
+	mutex.Lock()
+	for {
+		callbackID = rand.Uint64()
+		if callbackStore[callbackID] != nil {
+			continue
+		}
+		callbackStore[callbackID] = e
+		break
+	}
+	mutex.Unlock()
+
+	e.callbackID = callbackID
+
+	detailedSignal := (*C.gchar)(C.CString("pad-added"))
+	defer C.free(unsafe.Pointer(detailedSignal))
+
+	runtime.SetFinalizer(e, func(e *Element) {
+		e.cleanCallback()
+	})
+
+	C.X_g_signal_connect(e.GstElement, detailedSignal, C.guint64(callbackID))
 }
 
 func ElementFactoryMake(factoryName string, name string) (e *Element, err error) {
