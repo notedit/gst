@@ -7,6 +7,7 @@ package gst
 import "C"
 
 import (
+	"errors"
 	"runtime"
 	"unsafe"
 )
@@ -15,8 +16,42 @@ type Bin struct {
 	Element
 }
 
-func BinNew() (bin *Bin) {
-	Celement := C.gst_bin_new(nil)
+func ParseBinFromDescription(binStr string, ghostPads bool) (bin *Bin, err error) {
+	var gError *C.GError
+
+	pDesc := (*C.gchar)(unsafe.Pointer(C.CString(binStr)))
+	defer C.g_free(C.gpointer(unsafe.Pointer(pDesc)))
+
+	var ghost int
+	if ghostPads {
+		ghost = 1
+	} else {
+		ghost = 0
+	}
+
+	gstElt := C.gst_parse_bin_from_description(pDesc, C.int(ghost), &gError)
+
+	if gError != nil {
+		err = errors.New("create bin error")
+		return
+	}
+
+	bin = &Bin{}
+	bin.GstElement = gstElt
+
+	runtime.SetFinalizer(bin, func(bin *Bin) {
+		C.gst_object_unref(C.gpointer(unsafe.Pointer(bin.GstElement)))
+	})
+
+	return
+}
+
+func BinNew(name string) (bin *Bin) {
+
+	pName := (*C.gchar)(unsafe.Pointer(C.CString(name)))
+	defer C.g_free(C.gpointer(unsafe.Pointer(pName)))
+
+	Celement := C.gst_bin_new(pName)
 	bin = &Bin{}
 
 	bin.GstElement = Celement
