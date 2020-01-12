@@ -3,7 +3,6 @@ package gst
 import (
 	"fmt"
 	"runtime"
-	"strings"
 	"testing"
 	"time"
 )
@@ -145,46 +144,12 @@ func TestAppsink(t *testing.T) {
 	time.Sleep(1000000)
 }
 
-func TestDynamicPipeline(t *testing.T) {
+func TestCheckPlugins(t *testing.T) {
 
-	pipeline, err := PipelineNew("test-pipeline")
+	error := CheckPlugins([]string{"flv", "rtmp"})
 
-	if err != nil {
-		panic(err)
-	}
-
-	source, _ := ElementFactoryMake("uridecodebin", "source")
-	convert, _ := ElementFactoryMake("audioconvert", "convert")
-	sink, _ := ElementFactoryMake("autoaudiosink", "sink")
-
-	pipeline.Add(source)
-	pipeline.Add(convert)
-	pipeline.Add(sink)
-
-	convert.Link(sink)
-
-	source.SetObject("uri", "https://www.freedesktop.org/software/gstreamer-sdk/data/media/sintel_trailer-480p.webm")
-
-	source.SetPadAddedCallback(func(element *Element, pad *Pad) {
-		capstr := pad.GetCurrentCaps().ToString()
-
-		if strings.HasPrefix(capstr, "audio") {
-			sinkpad := convert.GetStaticPad("sink")
-			pad.Link(sinkpad)
-		}
-
-	})
-
-	pipeline.SetState(StatePlaying)
-
-	bus := pipeline.GetBus()
-
-	for {
-		message := bus.Pull(MessageError | MessageEos)
-		fmt.Println("message:", message.GetName())
-		if message.GetType() == MessageEos {
-			break
-		}
-
+	if error != nil {
+		t.Error("CheckPlugins", error)
+		t.FailNow()
 	}
 }
