@@ -44,10 +44,10 @@ const (
 	MessageExtended         MessageType = C.GST_MESSAGE_EXTENDED
 	MessageDeviceAdded      MessageType = C.GST_MESSAGE_DEVICE_ADDED
 	MessageDeviceRemoved    MessageType = C.GST_MESSAGE_DEVICE_REMOVED
-	MessagePropertyNotify   MessageType = C.GST_MESSAGE_PROPERTY_NOTIFY
-	MessageStreamCollection MessageType = C.GST_MESSAGE_STREAM_COLLECTION
-	MessageStreamsSelected  MessageType = C.GST_MESSAGE_STREAMS_SELECTED
-	MessageRedirect         MessageType = C.GST_MESSAGE_REDIRECT
+	//MessagePropertyNotify   MessageType = C.GST_MESSAGE_PROPERTY_NOTIFY
+	//MessageStreamCollection MessageType = C.GST_MESSAGE_STREAM_COLLECTION
+	//MessageStreamsSelected  MessageType = C.GST_MESSAGE_STREAMS_SELECTED
+	//MessageRedirect         MessageType = C.GST_MESSAGE_REDIRECT
 	MessageAny              MessageType = C.GST_MESSAGE_ANY
 )
 
