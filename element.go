@@ -10,21 +10,10 @@ import "C"
 import (
 	"errors"
 	"fmt"
-	"math/rand"
 	"reflect"
 	"runtime"
-	"sync"
 	"unsafe"
-
-	"github.com/mattn/go-pointer"
 )
-
-var (
-	mutex         sync.Mutex
-	callbackStore = map[uint64]*Element{}
-)
-
-type PadAddedCallback func(element *Element, pad *Pad)
 
 type StateOptions int
 
@@ -42,12 +31,10 @@ const (
 // } ElementUserData;
 
 type Element struct {
-	callbackID   uint64
+	GstElement   *C.GstElement
 	callbackFunc interface{}
 	// Do not change the order of the above two elements
 	// It matches ElementUserData in gst.h on purpose
-	GstElement *C.GstElement
-	onPadAdded PadAddedCallback
 }
 
 func (e *Element) Name() (name string) {
@@ -246,133 +233,27 @@ func (e *Element) SetObject(name string, value interface{}) {
 	}
 }
 
-func (e *Element) cleanCallback() {
-
-	if e.onPadAdded == nil {
-		return
-	}
-
-	mutex.Lock()
-	defer mutex.Unlock()
-
-	delete(callbackStore, e.callbackID)
-}
-
-//export go_callback_new_pad
-func go_callback_new_pad(CgstElement *C.GstElement, CgstPad *C.GstPad, callbackID C.guint64) {
-
-	mutex.Lock()
-	element := callbackStore[uint64(callbackID)]
-	mutex.Unlock()
-
-	if element == nil {
-		return
-	}
-
-	callback := element.onPadAdded
-
-	pad := &Pad{
-		pad: CgstPad,
-	}
-
-	callback(element, pad)
-}
-
-func (e *Element) SetPadAddedCallback(callback PadAddedCallback) {
-	e.onPadAdded = callback
-
-	var callbackID uint64
-	mutex.Lock()
-	for {
-		callbackID = rand.Uint64()
-		if callbackStore[callbackID] != nil {
-			continue
-		}
-		callbackStore[callbackID] = e
-		break
-	}
-	mutex.Unlock()
-
-	e.callbackID = callbackID
-
-	detailedSignal := (*C.gchar)(C.CString("pad-added"))
-	defer C.free(unsafe.Pointer(detailedSignal))
-
-	runtime.SetFinalizer(e, func(e *Element) {
-		e.cleanCallback()
-	})
-
-	C.X_g_signal_connect(e.GstElement, detailedSignal, C.guint64(callbackID))
-}
-
 func (e *Element) SetCallback(signal string, callback interface{}) {
 	e.callbackFunc = callback
 
-	var callbackID uint64
-	mutex.Lock()
-	for {
-		callbackID = rand.Uint64()
-		if callbackStore[callbackID] != nil {
-			continue
-		}
-		callbackStore[callbackID] = e
-		break
-	}
-	mutex.Unlock()
-
-	e.callbackID = callbackID
-
 	detailedSignal := (*C.gchar)(C.CString(signal))
 	defer C.free(unsafe.Pointer(detailedSignal))
-
-	runtime.SetFinalizer(e, func(e *Element) {
-		e.cleanCallback()
-	})
 	flags := 0  // TODO:, use GCOnnectFlags enum
 	notify := 0 // TODO: confirm null correctly used
 
 	user_data_e := &Element{
-		callbackID:   callbackID,
 		callbackFunc: e.callbackFunc,
 		GstElement:   e.GstElement,
-		onPadAdded:   e.onPadAdded,
 	}
-	_ = user_data_e
 
-	//vp := reflect.New(reflect.TypeOf(&[0]byte{}))
-	//vp.Elem().Set(reflect.ValueOf(callback))
-	vp := reflect.ValueOf(callback)
-	_ = vp
-
-	println("1")
-	fmt.Printf("callback: %v\n", callback)
-	fmt.Printf("callback: %v\n", callback.(unsafe.Pointer))
-	fmt.Printf("callback: %v\n", unsafe.Pointer(callback.(unsafe.Pointer)))
-	fmt.Printf("callback: %d\n", (*[0]byte)(unsafe.Pointer(callback.(unsafe.Pointer))))
-	fmt.Printf("callback: %p\n", C.closure(callback.(unsafe.Pointer)))
-	C.X_g_signal_connect_data_bak(
+	C.X_g_signal_connect_data(
 		(C.gpointer)(unsafe.Pointer(e.GstElement)),
 		detailedSignal,
-
-		//(*[0]byte)(unsafe.Pointer(callback)),
-		//(*[0]byte)(unsafe.Pointer(callback.(unsafe.Pointer))),
 		C.closure(callback.(unsafe.Pointer)),
-		//(callback.(unsafe.Pointer)),
-		//(*[0]byte)(unsafe.Pointer(vp.Pointer())),
-		//callback.(*[0]byte),
-		//(*[0]byte)(vp.Elem()),
-		//(vp.Interface()).(*[0]byte),
-		//vp.Interface().(*[0]byte),
-		//(vp.Elem()).(*[0]byte),
-		//(*[0]byte)(unsafe.Pointer(vp.Addr().Pointer())),
-
 		(C.gpointer)(unsafe.Pointer(user_data_e)),
-		(*[0]byte)(pointer.Save(notify)),
+		C.closure(unsafe.Pointer(&notify)),
 		(C.GConnectFlags)(flags),
-
-		C.guint64(callbackID),
 	)
-	println("2")
 }
 
 func ElementFactoryMake(factoryName string, name string) (e *Element, err error) {
