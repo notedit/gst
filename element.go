@@ -25,11 +25,6 @@ const (
 	StatePlaying     StateOptions = C.GST_STATE_PLAYING
 )
 
-// typedef struct ElementUserData {
-//     guint64 callbackId;
-//     gpointer callbackFunc;
-// } ElementUserData;
-
 type Element struct {
 	GstElement   *C.GstElement
 	callbackFunc interface{}
@@ -238,7 +233,7 @@ func (e *Element) SetCallback(signal string, callback interface{}) {
 
 	detailedSignal := (*C.gchar)(C.CString(signal))
 	defer C.free(unsafe.Pointer(detailedSignal))
-	flags := 0  // TODO:, use GCOnnectFlags enum
+	flags := 0  // TODO: use GConnectFlags enum
 	notify := 0 // TODO: confirm null correctly used
 
 	user_data_e := &Element{
