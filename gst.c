@@ -81,9 +81,31 @@ void X_g_signal_connect(GstElement* element, gchar* detailed_signal, guint64 cal
   g_signal_connect(element, detailed_signal, G_CALLBACK(cb_new_pad), d);
 }
 
+void cb_func(GstElement *element, gpointer data) {
+  ElementUserData *d = data;
+  printf("[ GST ] cb_func invoking callback with user_data: %p\n",d->callbackFunc);
+  //void myfunc(GstElement* element,gpointer v);
+  ((void (*)(GstElement* element,gpointer v))(d->callbackFunc))(element,data);
+}
+
 void X_g_signal_connect_data(gpointer instance, const gchar *detailed_signal, void (*f)(GstElement*, GstBus*, GstMessage*, gpointer), gpointer data, GClosureNotify destroy_data, GConnectFlags connect_flags) {
   printf("[ GST ] g_signal_connect_data called\n");
   g_signal_connect_data(instance, detailed_signal, G_CALLBACK(f), data, destroy_data, connect_flags);
+}
+
+void X_g_signal_connect_data_bak(gpointer instance, const gchar *detailed_signal, void (*f)(GstElement*, GstBus*, GstMessage*, gpointer), gpointer data, GClosureNotify destroy_data, GConnectFlags connect_flags, guint64 callbackId) {
+  printf("[ GST ] g_signal_connect_data_bak called\n");
+
+  ElementUserData *d = calloc(1, sizeof(ElementUserData));
+  //d->callbackId = callbackId;
+
+  ElementUserData *e = data;
+  printf("[ GST ] X_g_signal_connect_data_bak callbackFunc: %p\n",e->callbackFunc);
+  printf("[ GST ] X_g_signal_connect_data_bak callbackFunc: %p\n",&(e->callbackFunc));
+  d->callbackFunc = e->callbackFunc;
+  d->GstElement = instance;
+
+  g_signal_connect_data(instance, detailed_signal, G_CALLBACK(cb_func), d, destroy_data, connect_flags);
 }
 
 GstElement *X_gst_bin_get_by_name(GstElement* element, const gchar* name) {

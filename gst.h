@@ -9,7 +9,12 @@
 
 typedef struct ElementUserData {
     guint64 callbackId;
+    gpointer interfaceItable;
+    gpointer callbackFunc;
+    GstElement *GstElement;
+    gpointer anything;
 } ElementUserData;
+extern void X_g_signal_connect_data_bak(gpointer instance, const gchar *detailed_signal, void (*f)(GstElement*, GstBus*, GstMessage*, gpointer), gpointer data, GClosureNotify destroy_data, GConnectFlags connect_flags, guint64 callbackId);
 
 
 
