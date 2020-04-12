@@ -31,7 +31,7 @@ func BufferNewAndAlloc(size uint) (gstBuffer *Buffer, err error) {
 
 func BufferNewWrapped(data []byte) (gstBuffer *Buffer, err error) {
 	Cdata := (*C.gchar)(unsafe.Pointer(C.malloc(C.size_t(len(data)))))
-	C.bcopy(unsafe.Pointer(&data[0]), unsafe.Pointer(Cdata), C.size_t(len(data)))
+	C.memmove(unsafe.Pointer(Cdata), unsafe.Pointer(&data[0]), C.size_t(len(data)))
 	CGstBuffer := C.X_gst_buffer_new_wrapped(Cdata, C.gsize(len(data)))
 	if CGstBuffer == nil {
 		err = errors.New("could not allocate and wrap a new GstBuffer")
