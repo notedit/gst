@@ -53,6 +53,10 @@ void X_gst_g_object_set_bool(GstElement *e, const gchar* p_name, gboolean p_valu
   g_object_set(G_OBJECT(e), p_name, p_value, NULL);
 }
 
+void X_gst_g_object_set_gdouble(GstElement *e, const gchar* p_name, gdouble p_value) {
+  g_object_set(G_OBJECT(e), p_name, p_value, NULL);
+}
+
 void X_gst_g_object_set_caps(GstElement *e, const gchar* p_name, const GstCaps *p_value) {
   g_object_set(G_OBJECT(e), p_name, p_value, NULL);
 }
@@ -74,7 +78,7 @@ void cb_new_pad(GstElement *element, GstPad *pad, gpointer data) {
 
 void X_g_signal_connect(GstElement* element, gchar* detailed_signal, guint64 callbackId) {
   printf("[ GST ] g_signal_connect called with signal %s\n", detailed_signal);
-  
+
   ElementUserData *d = calloc(1, sizeof(ElementUserData));
   d->callbackId = callbackId;
 
@@ -204,10 +208,10 @@ void X_gst_pipeline_set_latency(GstElement* element, GstClockTime clockTime) {
 
 
 GstFlowReturn X_gst_app_src_push_buffer(GstElement* element, void *buffer,int len) {
-  
+
   gpointer p = g_memdup(buffer, len);
   GstBuffer *data = gst_buffer_new_wrapped(p, len);
-  
+
   return gst_app_src_push_buffer(GST_APP_SRC(element), data);
 }
 
