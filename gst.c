@@ -210,6 +210,19 @@ GstClockTime X_gst_buffer_get_duration(GstBuffer* buffer) {
   return GST_BUFFER_DURATION(buffer);
 }
 
+
+GstClockTime X_gst_buffer_get_pts(GstBuffer* buffer) {
+  return GST_BUFFER_PTS(buffer);
+}
+
+GstClockTime X_gst_buffer_get_dts(GstBuffer* buffer) {
+  return GST_BUFFER_DTS(buffer);
+}
+
+GstClockTime X_gst_buffer_get_offset(GstBuffer* buffer) {
+  return GST_BUFFER_OFFSET(buffer);
+}
+
 gchar* X_gst_pad_get_name(GstPad* pad) {
   return gst_pad_get_name(pad);
 }
