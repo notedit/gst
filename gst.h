@@ -38,6 +38,7 @@ extern void X_g_signal_emit_buffer_by_name(GstElement* element, const gchar* det
 extern GstBuffer *X_gst_buffer_new_wrapped(gchar* src, gsize len);
 extern gboolean X_gst_buffer_map(GstBuffer* gstBuffer, GstMapInfo* mapInfo);
 extern void X_gst_pipeline_use_clock(GstElement *element, GstClock *clock);
+extern void X_gst_pipeline_use_clock_real(GstElement *element);
 extern void X_gst_element_set_start_time_none(GstElement *element);
 extern void X_gst_structure_set_string(GstStructure *structure, const gchar *name, gchar* value);
 extern void X_gst_structure_set_int(GstStructure *structure, const gchar *name, gint value);
