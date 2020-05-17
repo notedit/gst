@@ -38,6 +38,7 @@ extern void X_g_signal_emit_buffer_by_name(GstElement* element, const gchar* det
 extern GstBuffer *X_gst_buffer_new_wrapped(gchar* src, gsize len);
 extern gboolean X_gst_buffer_map(GstBuffer* gstBuffer, GstMapInfo* mapInfo);
 extern void X_gst_pipeline_use_clock(GstElement *element, GstClock *clock);
+extern void X_gst_pipeline_use_clock_real(GstElement *element);
 extern void X_gst_element_set_start_time_none(GstElement *element);
 extern void X_gst_structure_set_string(GstStructure *structure, const gchar *name, gchar* value);
 extern void X_gst_structure_set_int(GstStructure *structure, const gchar *name, gint value);
@@ -52,6 +53,10 @@ extern GstClockTime X_gst_pipeline_get_latency(GstElement* element);
 extern void X_gst_pipeline_set_latency(GstElement* element, GstClockTime clockTime);
 extern GstFlowReturn X_gst_app_src_push_buffer(GstElement* element, void *buffer,int len);
 extern GstClockTime X_gst_buffer_get_duration(GstBuffer* buffer);
+
+extern GstClockTime X_gst_buffer_get_pts(GstBuffer* buffer);
+extern GstClockTime X_gst_buffer_get_dts(GstBuffer* buffer);
+extern GstClockTime X_gst_buffer_get_offset(GstBuffer* buffer);
 
 extern gchar* X_gst_pad_get_name(GstPad* pad);
 extern void cb_bus_message(GstBus * bus, GstMessage * message, gpointer poll_data);

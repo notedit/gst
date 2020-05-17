@@ -182,10 +182,16 @@ func (e *Element) PullSample() (sample *Sample, err error) {
 	copy(data, CData[:])
 
 	duration := uint64(C.X_gst_buffer_get_duration(gstBuffer))
+	pts := uint64(C.X_gst_buffer_get_pts(gstBuffer))
+	dts := uint64(C.X_gst_buffer_get_dts(gstBuffer))
+	offset := uint64(C.X_gst_buffer_get_offset(gstBuffer))
 
 	sample = &Sample{
 		Data:     data,
 		Duration: duration,
+		Pts:      pts,
+		Dts:      dts,
+		Offset:   offset,
 	}
 
 	C.gst_buffer_unmap(gstBuffer, mapInfo)
