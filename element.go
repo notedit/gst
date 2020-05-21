@@ -238,6 +238,9 @@ func (e *Element) SetObject(name string, value interface{}) {
 	case *Structure:
 		structure := value.(*Structure)
 		C.X_gst_g_object_set_structure(e.GstElement, cname, structure.C)
+	case *Pad:
+		pad := value.(*Pad)
+		C.X_gst_g_object_set_pad(e.GstElement, cname, pad.pad)
 	}
 }
 
