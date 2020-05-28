@@ -62,3 +62,4 @@ extern GstClockTime X_gst_buffer_get_offset(GstBuffer* buffer);
 extern gchar* X_gst_pad_get_name(GstPad* pad);
 extern void cb_bus_message(GstBus * bus, GstMessage * message, gpointer poll_data);
 extern void X_g_signal_connect_data(gpointer instance, const gchar *detailed_signal, void (*f)(GstElement*, GstBus*, GstMessage*, gpointer), gpointer data, GClosureNotify destroy_data, GConnectFlags connect_flags);
+extern void X_gst_element_seek(GstElement* element, int time_nanoseconds);

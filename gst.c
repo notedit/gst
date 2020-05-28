@@ -138,6 +138,12 @@ void X_gst_element_set_start_time_none(GstElement *element) {
   gst_element_set_start_time(element, GST_CLOCK_TIME_NONE);
 }
 
+void X_gst_element_seek(GstElement *element, gint time_nanoseconds) {
+  gst_element_seek (element, 1.0, GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH,
+                         GST_SEEK_TYPE_SET, time_nanoseconds,
+                         GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE);
+}
+
 void X_gst_structure_set_string(GstStructure *structure, const gchar *name, gchar *value) {
   GValue gv;
   memset(&gv, 0, sizeof(GValue));

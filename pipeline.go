@@ -121,3 +121,7 @@ func (p *Pipeline) SetLatency(latency uint64) {
 
 	C.X_gst_pipeline_set_latency(p.GstElement, C.GstClockTime(latency))
 }
+
+func (p *Pipeline) Seek(t int) {
+	C.X_gst_element_seek(p.GstElement, C.gint(t))
+}

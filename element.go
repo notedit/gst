@@ -303,6 +303,10 @@ func (e *Element) SetPadAddedCallback(callback PadAddedCallback) {
 	C.X_g_signal_connect(e.GstElement, detailedSignal, C.guint64(callbackID))
 }
 
+func (e *Element) Seek(t int) {
+	C.X_gst_element_seek(e.GstElement, C.gint(t))
+}
+
 func ElementFactoryMake(factoryName string, name string) (e *Element, err error) {
 	var pName *C.gchar
 
