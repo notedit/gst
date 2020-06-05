@@ -245,3 +245,11 @@ gchar* X_gst_pad_get_name(GstPad* pad) {
 void cb_bus_message(GstBus * bus, GstMessage * message, gpointer poll_data) {
   //go_callback_bus_message_thunk(bus, message, poll_data);
 }
+
+gboolean cb_pad_event(GstPad *pad, GstObject *parent, GstEvent *event) {
+  return go_callback_event_function(pad, parent, event);
+}
+
+void X_gst_pad_set_event_function(GstPad * pad) {
+  gst_pad_set_event_full_function_full(pad, cb_pad_event, NULL, NULL);
+}

@@ -256,26 +256,6 @@ func (e *Element) cleanCallback() {
 	delete(callbackStore, e.callbackID)
 }
 
-//export go_callback_new_pad
-func go_callback_new_pad(CgstElement *C.GstElement, CgstPad *C.GstPad, callbackID C.guint64) {
-
-	mutex.Lock()
-	element := callbackStore[uint64(callbackID)]
-	mutex.Unlock()
-
-	if element == nil {
-		return
-	}
-
-	callback := element.onPadAdded
-
-	pad := &Pad{
-		pad: CgstPad,
-	}
-
-	callback(element, pad)
-}
-
 func (e *Element) SetPadAddedCallback(callback PadAddedCallback) {
 	e.onPadAdded = callback
 

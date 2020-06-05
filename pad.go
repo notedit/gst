@@ -8,7 +8,13 @@ import "C"
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
+)
+
+var (
+	padCbMutex sync.Mutex
+	padCbStore = map[string]*Pad{}
 )
 
 type PadDirection C.GstPadDirection
@@ -47,8 +53,11 @@ type PadTemplate struct {
 	C *C.GstPadTemplate
 }
 
+type PadEventFunction func(pad *Pad, parent *Object, event *Event) bool
+
 type Pad struct {
-	pad *C.GstPad
+	pad           *C.GstPad
+	eventFunction PadEventFunction
 }
 
 func (p *Pad) Link(sink *Pad) (padLinkReturn PadLinkReturn) {
@@ -91,4 +100,26 @@ func (p *Pad) IsEOS() bool {
 func (p *Pad) IsLinked() bool {
 	// todo
 	return false
+}
+
+func (p *Pad) SetEventFunction(f PadEventFunction) {
+	padCbMutex.Lock()
+	padCbStore[p.Name()] = p
+	p.eventFunction = f
+
+	padCbMutex.Unlock()
+
+	runtime.SetFinalizer(p, func(p *Pad) {
+		p.cleanEventFunction()
+	})
+
+	C.X_gst_pad_set_event_function(p.pad)
+}
+
+func (p *Pad) cleanEventFunction() {
+	padCbMutex.Lock()
+	defer padCbMutex.Unlock()
+
+	delete(padCbStore, p.Name())
+	p.eventFunction = nil
 }
