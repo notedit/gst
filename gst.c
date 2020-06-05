@@ -65,25 +65,29 @@ void X_gst_g_object_setv(GObject *object, guint n_properties, const gchar *names
   //g_object_setv(object, n_properties, names, value);
 }
 
-
-void cb_new_pad(GstElement *element, GstPad *pad, gpointer data) {
-  ElementUserData *d = (ElementUserData *)data;
-  go_callback_new_pad(element, pad, d->callbackId);
+void cb_func(GstElement *element, gpointer data, gpointer data2) {
+  ElementUserData *d;
+  if(data2){
+    d= data2;
+    printf("[ GST ] cb_func invoking callback arity:3");
+    ((void (*)(GstElement* element,gpointer v, gpointer v2))(d->callbackFunc))(element,data,data2);
+  }else {
+    d= data;
+    printf("[ GST ] cb_func invoking callback arity:2");
+    ((void (*)(GstElement* element,gpointer v))(d->callbackFunc))(element,data);
+  }
 }
-
 
 void X_g_signal_connect(GstElement* element, gchar* detailed_signal, guint64 callbackId) {
   printf("[ GST ] g_signal_connect called with signal %s\n", detailed_signal);
-  
   ElementUserData *d = calloc(1, sizeof(ElementUserData));
-  d->callbackId = callbackId;
-
-  g_signal_connect(element, detailed_signal, G_CALLBACK(cb_new_pad), d);
+  g_signal_connect(element, detailed_signal, G_CALLBACK(cb_func), d);
 }
+
 
 void X_g_signal_connect_data(gpointer instance, const gchar *detailed_signal, void (*f)(GstElement*, GstBus*, GstMessage*, gpointer), gpointer data, GClosureNotify destroy_data, GConnectFlags connect_flags) {
   printf("[ GST ] g_signal_connect_data called\n");
-  g_signal_connect_data(instance, detailed_signal, G_CALLBACK(f), data, destroy_data, connect_flags);
+  g_signal_connect_data(instance, detailed_signal, G_CALLBACK(cb_func), data, destroy_data, connect_flags);
 }
 
 GstElement *X_gst_bin_get_by_name(GstElement* element, const gchar* name) {

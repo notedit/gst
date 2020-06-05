@@ -3,25 +3,17 @@ package gst
 /*
 #cgo pkg-config: gstreamer-1.0 gstreamer-app-1.0
 #include "gst.h"
+typedef void (*closure)();
 */
 import "C"
 
 import (
 	"errors"
 	"fmt"
-	"math/rand"
 	"reflect"
 	"runtime"
-	"sync"
 	"unsafe"
 )
-
-var (
-	mutex         sync.Mutex
-	callbackStore = map[uint64]*Element{}
-)
-
-type PadAddedCallback func(element *Element, pad *Pad)
 
 type StateOptions int
 
@@ -34,9 +26,10 @@ const (
 )
 
 type Element struct {
-	GstElement *C.GstElement
-	onPadAdded PadAddedCallback
-	callbackID uint64
+	GstElement   *C.GstElement
+	callbackFunc interface{}
+	// Do not change the order of the above two elements
+	// It matches ElementUserData in gst.h on purpose
 }
 
 func (e *Element) Name() (name string) {
@@ -241,63 +234,27 @@ func (e *Element) SetObject(name string, value interface{}) {
 	}
 }
 
-func (e *Element) cleanCallback() {
+func (e *Element) SetCallback(signal string, callback interface{}) {
+	e.callbackFunc = callback
 
-	if e.onPadAdded == nil {
-		return
-	}
-
-	mutex.Lock()
-	defer mutex.Unlock()
-
-	delete(callbackStore, e.callbackID)
-}
-
-//export go_callback_new_pad
-func go_callback_new_pad(CgstElement *C.GstElement, CgstPad *C.GstPad, callbackID C.guint64) {
-
-	mutex.Lock()
-	element := callbackStore[uint64(callbackID)]
-	mutex.Unlock()
-
-	if element == nil {
-		return
-	}
-
-	callback := element.onPadAdded
-
-	pad := &Pad{
-		pad: CgstPad,
-	}
-
-	callback(element, pad)
-}
-
-func (e *Element) SetPadAddedCallback(callback PadAddedCallback) {
-	e.onPadAdded = callback
-
-	var callbackID uint64
-	mutex.Lock()
-	for {
-		callbackID = rand.Uint64()
-		if callbackStore[callbackID] != nil {
-			continue
-		}
-		callbackStore[callbackID] = e
-		break
-	}
-	mutex.Unlock()
-
-	e.callbackID = callbackID
-
-	detailedSignal := (*C.gchar)(C.CString("pad-added"))
+	detailedSignal := (*C.gchar)(C.CString(signal))
 	defer C.free(unsafe.Pointer(detailedSignal))
+	flags := 0  // TODO: use GConnectFlags enum
+	notify := 0 // TODO: confirm null correctly used
 
-	runtime.SetFinalizer(e, func(e *Element) {
-		e.cleanCallback()
-	})
+	user_data_e := &Element{
+		callbackFunc: e.callbackFunc,
+		GstElement:   e.GstElement,
+	}
 
-	C.X_g_signal_connect(e.GstElement, detailedSignal, C.guint64(callbackID))
+	C.X_g_signal_connect_data(
+		(C.gpointer)(unsafe.Pointer(e.GstElement)),
+		detailedSignal,
+		C.closure(callback.(unsafe.Pointer)),
+		(C.gpointer)(unsafe.Pointer(user_data_e)),
+		C.closure(unsafe.Pointer(&notify)),
+		(C.GConnectFlags)(flags),
+	)
 }
 
 func ElementFactoryMake(factoryName string, name string) (e *Element, err error) {

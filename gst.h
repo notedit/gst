@@ -9,13 +9,14 @@
 
 
 typedef struct ElementUserData {
-    guint64 callbackId;
+    GstElement *GstElement;
+    gpointer interfaceItable;
+    gpointer callbackFunc;
 } ElementUserData;
 
 
 
 
-extern void go_callback_new_pad(GstElement *element,GstPad *pad, guint64 callbackId);
 
 
 extern void X_gst_shim_init();
@@ -30,7 +31,6 @@ extern void X_gst_g_object_set(GstElement* e, const gchar* p_name, const GValue*
 extern void X_gst_g_object_set_structure(GstElement *e, const gchar* p_name, const GstStructure *p_value);
 extern void X_gst_g_object_setv(GObject* object, guint n_properties, const gchar* names[], const GValue value[]);
 extern void X_g_signal_connect(GstElement* element, gchar* detailed_signal, guint64 callbackId);
-extern void cb_new_pad(GstElement* element, GstPad* pad, gpointer data);
 extern gboolean cb_pad_event(GstPad *pad, GstObject *parent, GstEvent *event);
 extern GstElement *X_gst_bin_get_by_name(GstElement* element, const gchar* name);
 extern GstElementClass *X_GST_ELEMENT_GET_CLASS(GstElement *element);
