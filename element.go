@@ -13,7 +13,8 @@ import (
 	"reflect"
 	"runtime"
 	"sync"
-	"unsafe"
+    "time"
+    "unsafe"
 )
 
 var (
@@ -103,6 +104,26 @@ func (e *Element) GetStaticPad(name string) (pad *Pad) {
 	}
 
 	return
+}
+
+func (e *Element) QueryPosition() (time.Duration, error) {
+    var position C.gint64
+
+    if int(C.gst_element_query_position(e.GstElement, C.GST_FORMAT_TIME, &position)) == 0 {
+        return 0, fmt.Errorf("position query failed")
+    }
+
+    return time.Duration(position / C.GST_SECOND) * time.Second, nil
+}
+
+func (e *Element) QueryDuration() (time.Duration, error) {
+    var duration C.gint64
+
+    if int(C.gst_element_query_duration(e.GstElement, C.GST_FORMAT_TIME, &duration)) == 0 {
+        return 0, fmt.Errorf("duration query failed")
+    }
+
+    return time.Duration(duration / C.GST_SECOND) * time.Second, nil
 }
 
 func (e *Element) AddPad(pad *Pad) bool {
