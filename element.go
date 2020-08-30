@@ -241,6 +241,16 @@ func (e *Element) SetObject(name string, value interface{}) {
 	}
 }
 
+func (e *Element) SendEvent(event *Event) bool {
+
+	Cbool := C.gst_element_send_event(e.GstElement, event.GstEvent)
+	if Cbool == 1 {
+		return true
+	}
+
+	return false
+}
+
 func (e *Element) cleanCallback() {
 
 	if e.onPadAdded == nil {
