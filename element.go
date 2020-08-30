@@ -232,12 +232,16 @@ func (e *Element) SetObject(name string, value interface{}) {
 			cvalue = 0
 		}
 		C.X_gst_g_object_set_bool(e.GstElement, cname, C.gboolean(cvalue))
+	case float64:
+		C.X_gst_g_object_set_gdouble(e.GstElement, cname, C.gdouble(value.(float64)))
 	case *Caps:
 		caps := value.(*Caps)
 		C.X_gst_g_object_set_caps(e.GstElement, cname, caps.caps)
 	case *Structure:
 		structure := value.(*Structure)
 		C.X_gst_g_object_set_structure(e.GstElement, cname, structure.C)
+	default:
+		panic(fmt.Errorf("SetObject: don't know how to set value for type %T", value))
 	}
 }
 

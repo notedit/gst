@@ -25,6 +25,7 @@ extern void X_gst_g_object_set_string(GstElement *e, const gchar* p_name, gchar*
 extern void X_gst_g_object_set_int(GstElement *e, const gchar* p_name, gint p_value);
 extern void X_gst_g_object_set_uint(GstElement *e, const gchar* p_name, guint p_value);
 extern void X_gst_g_object_set_bool(GstElement *e, const gchar* p_name, gboolean p_value);
+extern void X_gst_g_object_set_gdouble(GstElement *e, const gchar* p_name, gdouble p_value);
 extern void X_gst_g_object_set_caps(GstElement *e, const gchar* p_name, const GstCaps *p_value);
 extern void X_gst_g_object_set(GstElement* e, const gchar* p_name, const GValue* p_value);
 extern void X_gst_g_object_set_structure(GstElement *e, const gchar* p_name, const GstStructure *p_value);
