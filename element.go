@@ -126,6 +126,11 @@ func (e *Element) QueryDuration() (time.Duration, error) {
     return time.Duration(duration / C.GST_SECOND) * time.Second, nil
 }
 
+func (e *Element) Seek(duration time.Duration) bool {
+        result := C.gst_element_seek_simple(e.GstElement, C.GST_FORMAT_TIME, C.GST_SEEK_FLAG_FLUSH, C.long(duration.Nanoseconds()))
+        return result == C.TRUE
+}
+
 func (e *Element) AddPad(pad *Pad) bool {
 
 	Cret := C.gst_element_add_pad(e.GstElement, pad.pad)
