@@ -7,6 +7,7 @@ package gst
 import "C"
 
 import (
+	"fmt"
 	"runtime"
 	"unsafe"
 )
@@ -91,4 +92,38 @@ func (p *Pad) IsEOS() bool {
 func (p *Pad) IsLinked() bool {
 	// todo
 	return false
+}
+
+func (e *Pad) SetObject(name string, value interface{}) {
+
+	cname := (*C.gchar)(unsafe.Pointer(C.CString(name)))
+	defer C.g_free(C.gpointer(unsafe.Pointer(cname)))
+	switch value.(type) {
+	case string:
+		str := (*C.gchar)(unsafe.Pointer(C.CString(value.(string))))
+		defer C.g_free(C.gpointer(unsafe.Pointer(str)))
+		C.X_gst_g_pad_set_string(e.pad, cname, str)
+	case int:
+		C.X_gst_g_pad_set_int(e.pad, cname, C.gint(value.(int)))
+	case uint32:
+		C.X_gst_g_pad_set_uint(e.pad, cname, C.guint(value.(uint32)))
+	case bool:
+		var cvalue int
+		if value.(bool) == true {
+			cvalue = 1
+		} else {
+			cvalue = 0
+		}
+		C.X_gst_g_pad_set_bool(e.pad, cname, C.gboolean(cvalue))
+	case float64:
+		C.X_gst_g_pad_set_gdouble(e.pad, cname, C.gdouble(value.(float64)))
+	case *Caps:
+		caps := value.(*Caps)
+		C.X_gst_g_pad_set_caps(e.pad, cname, caps.caps)
+	case *Structure:
+		structure := value.(*Structure)
+		C.X_gst_g_pad_set_structure(e.pad, cname, structure.C)
+	default:
+		panic(fmt.Errorf("SetObject: don't know how to set value for type %T", value))
+	}
 }
