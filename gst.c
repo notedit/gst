@@ -70,6 +70,33 @@ void X_gst_g_object_setv(GObject *object, guint n_properties, const gchar *names
 }
 
 
+void X_gst_g_pad_set_string(GstPad *e, const gchar* p_name, gchar* p_value) {
+  g_object_set(G_OBJECT(e), p_name, p_value, NULL);
+}
+
+void X_gst_g_pad_set_int(GstPad *e, const gchar* p_name, gint p_value) {
+  g_object_set(G_OBJECT(e), p_name, p_value, NULL);
+}
+
+void X_gst_g_pad_set_uint(GstPad *e, const gchar* p_name, guint p_value) {
+  g_object_set(G_OBJECT(e), p_name, p_value, NULL);
+}
+
+void X_gst_g_pad_set_bool(GstPad *e, const gchar* p_name, gboolean p_value) {
+  g_object_set(G_OBJECT(e), p_name, p_value, NULL);
+}
+
+void X_gst_g_pad_set_gdouble(GstPad *e, const gchar* p_name, gdouble p_value) {
+  g_object_set(G_OBJECT(e), p_name, p_value, NULL);
+}
+
+void X_gst_g_pad_set_caps(GstPad *e, const gchar* p_name, const GstCaps *p_value) {
+  g_object_set(G_OBJECT(e), p_name, p_value, NULL);
+}
+
+void X_gst_g_pad_set_structure(GstPad *e, const gchar* p_name, const GstStructure *p_value) {
+  g_object_set(G_OBJECT(e), p_name, p_value, NULL);
+}
 void cb_new_pad(GstElement *element, GstPad *pad, gpointer data) {
   ElementUserData *d = (ElementUserData *)data;
   go_callback_new_pad(element, pad, d->callbackId);
