@@ -49,6 +49,12 @@ func (e *Element) Name() (name string) {
 	return
 }
 
+func (e *Element) DumpDot(filePath string) {
+	n := (*C.gchar)(unsafe.Pointer(C.CString(filePath)))
+	defer C.g_free(C.gpointer(unsafe.Pointer(n)))
+	C.X_GST_DEBUG_BIN_TO_DOT_FILE(e.GstElement, n)
+}
+
 func (e *Element) Link(dst *Element) bool {
 
 	result := C.gst_element_link(e.GstElement, dst.GstElement)
