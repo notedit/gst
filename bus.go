@@ -7,8 +7,8 @@ package gst
 import "C"
 
 import (
+	"fmt"
 	"runtime"
-	"time"
 )
 
 type Bus struct {
@@ -28,11 +28,11 @@ func (b *Bus) Pop() (message *Message) {
 	return
 }
 
-func (b *Bus) PopTimed() (message *Message, timedOut bool) {
-	CGstMessage := C.gst_bus_timed_pop(b.C, C.ulong((time.Second * 10).Nanoseconds()))
+func (b *Bus) PopTimed() (message *Message, err error) {
+	CGstMessage := C.gst_bus_timed_pop(b.C, C.GST_CLOCK_TIME_NONE)
 	if CGstMessage == nil {
 		// Timeout hit, no message
-		timedOut = true
+		err = fmt.Errorf("no message in bus")
 		return
 	}
 
