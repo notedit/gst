@@ -8,6 +8,7 @@ import "C"
 
 import (
 	"runtime"
+	"time"
 )
 
 type Bus struct {
@@ -15,8 +16,26 @@ type Bus struct {
 }
 
 func (b *Bus) Pop() (message *Message) {
-
 	CGstMessage := C.gst_bus_pop(b.C)
+	message = &Message{
+		C: CGstMessage,
+	}
+
+	runtime.SetFinalizer(message, func(message *Message) {
+		C.gst_message_unref(message.C)
+	})
+
+	return
+}
+
+func (b *Bus) PopTimed() (message *Message, timedOut bool) {
+	CGstMessage := C.gst_bus_timed_pop(b.C, C.ulong((time.Second * 10).Nanoseconds()))
+	if CGstMessage == nil {
+		// Timeout hit, no message
+		timedOut = true
+		return
+	}
+
 	message = &Message{
 		C: CGstMessage,
 	}
