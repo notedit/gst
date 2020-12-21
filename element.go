@@ -34,6 +34,15 @@ const (
 	StatePlaying     StateOptions = C.GST_STATE_PLAYING
 )
 
+type StateChangeReturn int
+
+const (
+	StateChangeFailure StateChangeReturn = C.GST_STATE_CHANGE_FAILURE
+	StateChangeSuccess StateChangeReturn = C.GST_STATE_CHANGE_SUCCESS
+	StateChangeAsync   StateChangeReturn = C.GST_STATE_CHANGE_ASYNC
+	StateChangePreroll StateChangeReturn = C.GST_STATE_CHANGE_NO_PREROLL
+)
+
 type Element struct {
 	GstElement *C.GstElement
 	onPadAdded PadAddedCallback

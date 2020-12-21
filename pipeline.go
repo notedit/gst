@@ -71,8 +71,9 @@ func PipelineNew(name string) (e *Pipeline, err error) {
 	return
 }
 
-func (p *Pipeline) SetState(state StateOptions) {
-	C.gst_element_set_state(p.GstElement, C.GstState(state))
+func (p *Pipeline) SetState(state StateOptions) StateChangeReturn {
+	Cint := C.gst_element_set_state(p.GstElement, C.GstState(state))
+	return StateChangeReturn(Cint)
 }
 
 func (p *Pipeline) GetBus() (bus *Bus) {
