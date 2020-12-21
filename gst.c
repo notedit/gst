@@ -215,6 +215,11 @@ GstBus* X_gst_pipeline_get_bus(GstElement* element) {
 	return gst_pipeline_get_bus(GST_PIPELINE(element));
 }
 
+GstBus* X_gst_element_get_bus(GstElement* element) {
+	return gst_element_get_bus(element);
+}
+
+
 GstClock * X_gst_pipeline_get_clock(GstElement* element) {
   return gst_pipeline_get_clock(GST_PIPELINE(element));
 }
