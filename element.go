@@ -291,6 +291,26 @@ func (e *Element) SendEvent(event *Event) bool {
 	return false
 }
 
+func (e *Element) SetState(state StateOptions) StateChangeReturn {
+	Cint := C.gst_element_set_state(e.GstElement, C.GstState(state))
+	return StateChangeReturn(Cint)
+}
+
+func (e *Element) GetBus() (bus *Bus) {
+
+	CBus := C.X_gst_element_get_bus(e.GstElement)
+
+	bus = &Bus{
+		C: CBus,
+	}
+
+	runtime.SetFinalizer(bus, func(bus *Bus) {
+		C.gst_object_unref(C.gpointer(unsafe.Pointer(bus.C)))
+	})
+
+	return
+}
+
 func (e *Element) cleanCallback() {
 
 	if e.onPadAdded == nil {

@@ -57,6 +57,7 @@ extern void X_gst_structure_set_bool(GstStructure *structure, const gchar *name,
 extern GstEventType X_GST_EVENT_TYPE(GstEvent* event);
 extern GstMessageType X_GST_MESSAGE_TYPE(GstMessage *message);
 extern GstBus* X_gst_pipeline_get_bus(GstElement* element);
+extern GstBus* X_gst_element_get_bus(GstElement* element);
 extern GstClock * X_gst_pipeline_get_clock(GstElement* element);
 extern GstClockTime X_gst_pipeline_get_delay(GstElement* element);
 extern GstClockTime X_gst_pipeline_get_latency(GstElement* element);
