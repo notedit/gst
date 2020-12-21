@@ -43,6 +43,25 @@ const (
 	StateChangePreroll StateChangeReturn = C.GST_STATE_CHANGE_NO_PREROLL
 )
 
+type SeekFlags int
+
+const (
+	SeekFlagNone                      SeekFlags = C.GST_SEEK_FLAG_NONE
+	SeekFlagFlush                     SeekFlags = C.GST_SEEK_FLAG_FLUSH
+	SeekFlagAccurate                  SeekFlags = C.GST_SEEK_FLAG_ACCURATE
+	SeekFlagKeyUnit                   SeekFlags = C.GST_SEEK_FLAG_KEY_UNIT
+	SeekFlagSegment                   SeekFlags = C.GST_SEEK_FLAG_SEGMENT
+	SeekFlagTrickmode                 SeekFlags = C.GST_SEEK_FLAG_TRICKMODE
+	SeekFlagSkip                      SeekFlags = C.GST_SEEK_FLAG_SKIP
+	SeekFlagSnapBefore                SeekFlags = C.GST_SEEK_FLAG_SNAP_BEFORE
+	SeekFlagSnapAfter                 SeekFlags = C.GST_SEEK_FLAG_SNAP_AFTER
+	SeekFlagSnapNearest               SeekFlags = C.GST_SEEK_FLAG_SNAP_NEAREST
+	SeekFlagTrickmodeKeyUnits         SeekFlags = C.GST_SEEK_FLAG_TRICKMODE_KEY_UNITS
+	SeekFlagTrickmodeNoAudio          SeekFlags = C.GST_SEEK_FLAG_TRICKMODE_NO_AUDIO
+	SeekFlagTrickmodeForwardPredicted SeekFlags = C.GST_SEEK_FLAG_TRICKMODE_FORWARD_PREDICTED
+	SeekFlagInstantRateChange         SeekFlags = C.GST_SEEK_FLAG_INSTANT_RATE_CHANGE
+)
+
 type Element struct {
 	GstElement *C.GstElement
 	onPadAdded PadAddedCallback
@@ -119,6 +138,11 @@ func (e *Element) GetStaticPad(name string) (pad *Pad) {
 	}
 
 	return
+}
+
+func (e *Element) Query(q *Query) bool {
+	Cboolean := C.gst_element_query(e.GstElement, q.C)
+	return Cboolean == 1
 }
 
 func (e *Element) QueryPosition() (time.Duration, error) {
@@ -309,6 +333,13 @@ func (e *Element) GetBus() (bus *Bus) {
 	})
 
 	return
+}
+
+func (e *Element) SeekSimple(format FormatOptions, flags SeekFlags, seekPos time.Duration) bool {
+
+	Cbool := C.gst_element_seek_simple(e.GstElement, C.GstFormat(format), C.GstSeekFlags(flags), C.gint64(seekPos))
+
+	return Cbool == 1
 }
 
 func (e *Element) cleanCallback() {
