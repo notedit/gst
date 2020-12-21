@@ -78,3 +78,12 @@ func (message *Message) GetStructure() (structure *Structure) {
 
 	return
 }
+
+func (message *Message) ParseStateChanged() (oldState, newState, pending StateOptions) {
+	var Coldstate, Cnewstate, Cpending C.GstState
+	C.gst_message_parse_state_changed(message.C, &Coldstate, &Cnewstate, &Cpending)
+	oldState = StateOptions(Coldstate)
+	newState = StateOptions(Cnewstate)
+	pending = StateOptions(Cpending)
+	return
+}
