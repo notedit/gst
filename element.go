@@ -197,6 +197,18 @@ func (e *Element) GetClock() (gstClock *Clock) {
 	return
 }
 
+func (e *Element) EndOfStream() (err error) {
+	// EndOfStream signals that the appsrc will not receive any further
+	// input via PushBuffer and permits the pipeline to finish properly.
+
+	var gstReturn C.GstFlowReturn
+	gstReturn = C.gst_app_src_end_of_stream((*C.GstAppSrc)(unsafe.Pointer(e.GstElement)))
+	if gstReturn != C.GST_FLOW_OK {
+		err = errors.New("could not send end_of_stream")
+	}
+	return
+}
+
 func (e *Element) PushBuffer(data []byte) (err error) {
 
 	b := C.CBytes(data)
