@@ -7,9 +7,9 @@ package gst
 import "C"
 
 import (
-    "fmt"
-    "runtime"
-    "unsafe"
+	"fmt"
+	"runtime"
+	"unsafe"
 )
 
 type Structure struct {
@@ -32,64 +32,64 @@ func NewStructure(name string) (structure *Structure) {
 }
 
 func errNoSuchField(t, name string) error {
-    return fmt.Errorf("structure does not have a %s named %s", t, name)
+	return fmt.Errorf("structure does not have a %s named %s", t, name)
 }
 
 func (s *Structure) GetName() string {
-    return C.GoString(C.gst_structure_get_name(s.C))
+	return C.GoString(C.gst_structure_get_name(s.C))
 }
 
 func (s *Structure) GetBool(name string) (bool, error) {
-    var out C.gboolean
+	var out C.gboolean
 
-    if C.FALSE == C.gst_structure_get_boolean(s.C, C.CString(name), &out) {
-        return false, errNoSuchField("bool", name)
-    }
+	if C.FALSE == C.gst_structure_get_boolean(s.C, C.CString(name), &out) {
+		return false, errNoSuchField("bool", name)
+	}
 
-    if out == C.TRUE {
-        return true, nil
-    }
+	if out == C.TRUE {
+		return true, nil
+	}
 
-    return false, nil
+	return false, nil
 }
 
 func (s *Structure) GetInt(name string) (int, error) {
-    var out C.gint
+	var out C.gint
 
-    if C.FALSE == C.gst_structure_get_int(s.C, C.CString(name), &out) {
-        return 0, errNoSuchField("int", name)
-    }
+	if C.FALSE == C.gst_structure_get_int(s.C, C.CString(name), &out) {
+		return 0, errNoSuchField("int", name)
+	}
 
-    return int(out), nil
+	return int(out), nil
 }
 
 func (s *Structure) GetInt64(name string) (int64, error) {
-    var out C.gint64
+	var out C.gint64
 
-    if C.FALSE == C.gst_structure_get_int64(s.C, C.CString(name), &out) {
-        return 0, errNoSuchField("int64", name)
-    }
+	if C.FALSE == C.gst_structure_get_int64(s.C, C.CString(name), &out) {
+		return 0, errNoSuchField("int64", name)
+	}
 
-    return int64(out), nil
+	return int64(out), nil
 }
 
 func (s *Structure) GetUint(name string) (uint, error) {
-    var out C.guint
+	var out C.guint
 
-    if C.FALSE == C.gst_structure_get_uint(s.C, C.CString(name), &out) {
-        return 0, errNoSuchField("uint", name)
-    }
+	if C.FALSE == C.gst_structure_get_uint(s.C, C.CString(name), &out) {
+		return 0, errNoSuchField("uint", name)
+	}
 
-    return uint(out), nil
+	return uint(out), nil
 }
 
 func (s *Structure) GetString(name string) (string, error) {
-    out := C.gst_structure_get_string(s.C, C.CString(name))
-    if out == nil {
-        return "", errNoSuchField("string", name)
-    }
+	out := C.gst_structure_get_string(s.C, C.CString(name))
+	if out == nil {
+		return "", errNoSuchField("string", name)
+	}
 
-    return C.GoString(out), nil
+	return C.GoString(out), nil
 }
 
 func (s *Structure) SetValue(name string, value interface{}) {

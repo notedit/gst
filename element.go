@@ -13,8 +13,8 @@ import (
 	"reflect"
 	"runtime"
 	"sync"
-    "time"
-    "unsafe"
+	"time"
+	"unsafe"
 )
 
 var (
@@ -107,28 +107,23 @@ func (e *Element) GetStaticPad(name string) (pad *Pad) {
 }
 
 func (e *Element) QueryPosition() (time.Duration, error) {
-    var position C.gint64
+	var position C.gint64
 
-    if int(C.gst_element_query_position(e.GstElement, C.GST_FORMAT_TIME, &position)) == 0 {
-        return 0, fmt.Errorf("position query failed")
-    }
+	if int(C.gst_element_query_position(e.GstElement, C.GST_FORMAT_TIME, &position)) == 0 {
+		return 0, fmt.Errorf("position query failed")
+	}
 
-    return time.Duration(position / C.GST_SECOND) * time.Second, nil
+	return time.Duration(position/C.GST_SECOND) * time.Second, nil
 }
 
 func (e *Element) QueryDuration() (time.Duration, error) {
-    var duration C.gint64
+	var duration C.gint64
 
-    if int(C.gst_element_query_duration(e.GstElement, C.GST_FORMAT_TIME, &duration)) == 0 {
-        return 0, fmt.Errorf("duration query failed")
-    }
+	if int(C.gst_element_query_duration(e.GstElement, C.GST_FORMAT_TIME, &duration)) == 0 {
+		return 0, fmt.Errorf("duration query failed")
+	}
 
-    return time.Duration(duration / C.GST_SECOND) * time.Second, nil
-}
-
-func (e *Element) Seek(duration time.Duration) bool {
-        result := C.gst_element_seek_simple(e.GstElement, C.GST_FORMAT_TIME, C.GST_SEEK_FLAG_FLUSH, C.long(duration.Nanoseconds()))
-        return result == C.TRUE
+	return time.Duration(duration/C.GST_SECOND) * time.Second, nil
 }
 
 func (e *Element) AddPad(pad *Pad) bool {
