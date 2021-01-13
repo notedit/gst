@@ -7,6 +7,7 @@ package gst
 import "C"
 
 import (
+	"fmt"
 	"runtime"
 	"time"
 )
@@ -16,8 +17,26 @@ type Bus struct {
 }
 
 func (b *Bus) Pop() (message *Message) {
-
 	CGstMessage := C.gst_bus_pop(b.C)
+	message = &Message{
+		C: CGstMessage,
+	}
+
+	runtime.SetFinalizer(message, func(message *Message) {
+		C.gst_message_unref(message.C)
+	})
+
+	return
+}
+
+func (b *Bus) PopTimed() (message *Message, err error) {
+	CGstMessage := C.gst_bus_timed_pop(b.C, C.GST_CLOCK_TIME_NONE)
+	if CGstMessage == nil {
+		// Timeout hit, no message
+		err = fmt.Errorf("no message in bus")
+		return
+	}
+
 	message = &Message{
 		C: CGstMessage,
 	}
