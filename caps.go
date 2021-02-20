@@ -43,3 +43,12 @@ func (c *Caps) String() (str string) {
 	str = C.GoString((*C.char)(unsafe.Pointer(CStr)))
 	return
 }
+
+func (c *Caps) GetStructure(index int) (structure *Structure) {
+	Cstructure := C.gst_caps_get_structure(c.caps, C.uint(index))
+	structure = &Structure{
+		C: Cstructure,
+	}
+
+	return
+}
