@@ -241,7 +241,7 @@ void X_gst_pipeline_set_latency(GstElement* element, GstClockTime clockTime) {
 
 GstFlowReturn X_gst_app_src_push_buffer(GstElement* element, void *buffer,int len) {
 
-  gpointer p = g_memdup(buffer, len);
+  gpointer p = g_memdup2(buffer, len);
   GstBuffer *data = gst_buffer_new_wrapped(p, len);
 
   return gst_app_src_push_buffer(GST_APP_SRC(element), data);
