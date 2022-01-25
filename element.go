@@ -312,6 +312,10 @@ func (e *Element) SetObject(name string, value interface{}) {
 	case *Structure:
 		structure := value.(*Structure)
 		C.X_gst_g_object_set_structure(e.GstElement, cname, structure.C)
+	case *Element:
+		element := value.(*Element)
+		C.X_gst_g_object_set_element(e.GstElement, cname, element.GstElement)
+
 	default:
 		panic(fmt.Errorf("SetObject: don't know how to set value for type %T", value))
 	}
