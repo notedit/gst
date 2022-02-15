@@ -29,6 +29,7 @@ extern void X_gst_g_object_set_gdouble(GstElement *e, const gchar* p_name, gdoub
 extern void X_gst_g_object_set_caps(GstElement *e, const gchar* p_name, const GstCaps *p_value);
 extern void X_gst_g_object_set(GstElement* e, const gchar* p_name, const GValue* p_value);
 extern void X_gst_g_object_set_structure(GstElement *e, const gchar* p_name, const GstStructure *p_value);
+extern void X_gst_g_object_set_element(GstElement *e, const gchar* p_name, const GstElement *p_value);
 extern void X_gst_g_object_setv(GObject* object, guint n_properties, const gchar* names[], const GValue value[]);
 extern void X_gst_g_pad_set_string(GstPad *e, const gchar* p_name, gchar* p_value);
 extern void X_gst_g_pad_set_int(GstPad *e, const gchar* p_name, gint p_value);
