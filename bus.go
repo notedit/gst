@@ -30,7 +30,9 @@ func (b *Bus) Pop() (message *Message) {
 }
 
 func (b *Bus) PopTimed() (message *Message, err error) {
-	CGstMessage := C.gst_bus_timed_pop(b.C, C.GST_CLOCK_TIME_NONE)
+	var timeNone int64 = C.GST_CLOCK_TIME_NONE
+
+	CGstMessage := C.gst_bus_timed_pop(b.C, C.ulonglong(timeNone))
 	if CGstMessage == nil {
 		// Timeout hit, no message
 		err = fmt.Errorf("no message in bus")
