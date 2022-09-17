@@ -21,6 +21,10 @@ brew install gst-plugins-base
 brew install gst-plugins-good
 brew install gst-plugins-bad
 brew install gst-plugins-ugly
+
+
+// set GST_PLUGIN_PATH
+export GST_PLUGIN_PATH=/opt/homebrew/lib/gstreamer-1.0/
 ```
 
 Then
@@ -28,6 +32,8 @@ Then
 ```sh
 go get github.com/notedit/gst
 ```
+
+
 
 
 
