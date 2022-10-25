@@ -4,10 +4,13 @@
 #include "gst.h"
 
 void X_gst_shim_init() {
+
+
   gchar *nano_str;
   guint major, minor, micro, nano;
 
   fprintf(stderr, "[ GSTREAMER ] shim init\n");
+
   gst_init(0, NULL);
 
   gst_version (&major, &minor, &micro, &nano);
@@ -244,9 +247,8 @@ void X_gst_pipeline_set_latency(GstElement* element, GstClockTime clockTime) {
 
 
 GstFlowReturn X_gst_app_src_push_buffer(GstElement* element, void *buffer,int len) {
-
-  gpointer p = g_memdup2(buffer, len);
-  GstBuffer *data = gst_buffer_new_wrapped(p, len);
+   GstBuffer *data = gst_buffer_new_memdup(buffer, len);
+  //GstBuffer *data = gst_buffer_new_wrapped(p, len);
 
   return gst_app_src_push_buffer(GST_APP_SRC(element), data);
 }

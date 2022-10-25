@@ -25,25 +25,20 @@ type Pipeline struct {
 func ParseLaunch(pipelineStr string) (p *Pipeline, err error) {
 	var gError *C.GError
 
-	pDesc := (*C.gchar)(unsafe.Pointer(C.CString(pipelineStr)))
-	defer C.g_free(C.gpointer(unsafe.Pointer(pDesc)))
+	pDesc := C.CString(pipelineStr)
+	defer C.free(unsafe.Pointer(pDesc))
 
-	gstElt := C.gst_parse_launch(pDesc, &gError)
-
+	gstElt := C.gst_parse_launch((*C.gchar)(pDesc), &gError)
 	if gError != nil {
 		err = errors.New(C.GoString(C.ErrorMessage(gError)))
 		return
 	}
-
 	p = &Pipeline{}
 	p.GstElement = gstElt
-
 	C.X_gst_pipeline_use_clock_real(p.GstElement)
-
 	runtime.SetFinalizer(p, func(p *Pipeline) {
 		C.gst_object_unref(C.gpointer(unsafe.Pointer(p.GstElement)))
 	})
-
 	return
 }
 
@@ -53,11 +48,11 @@ func PipelineNew(name string) (e *Pipeline, err error) {
 	if name == "" {
 		pName = nil
 	} else {
-		pName := (*C.gchar)(unsafe.Pointer(C.CString(name)))
-		defer C.g_free(C.gpointer(unsafe.Pointer(pName)))
+		pName := C.CString(name)
+		defer C.free(unsafe.Pointer(pName))
 	}
 
-	gstElt := C.gst_pipeline_new(pName)
+	gstElt := C.gst_pipeline_new((*C.gchar)(pName))
 	if gstElt == nil {
 		err = errors.New(fmt.Sprintf("could not create a Gstreamer pipeline name %s", name))
 		return

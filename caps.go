@@ -16,9 +16,9 @@ type Caps struct {
 }
 
 func CapsFromString(caps string) (gstCaps *Caps) {
-	c := (*C.gchar)(unsafe.Pointer(C.CString(caps)))
-	defer C.g_free(C.gpointer(unsafe.Pointer(c)))
-	CCaps := C.gst_caps_from_string(c)
+	c := C.CString(caps)
+	defer C.free(unsafe.Pointer(c))
+	CCaps := C.gst_caps_from_string((*C.gchar)(c))
 	gstCaps = &Caps{
 		caps: CCaps,
 	}
