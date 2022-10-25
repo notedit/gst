@@ -19,8 +19,8 @@ type Bin struct {
 func ParseBinFromDescription(binStr string, ghostPads bool) (bin *Bin, err error) {
 	var gError *C.GError
 
-	pDesc := (*C.gchar)(unsafe.Pointer(C.CString(binStr)))
-	defer C.g_free(C.gpointer(unsafe.Pointer(pDesc)))
+	pDesc := C.CString(binStr)
+	defer C.free(unsafe.Pointer(pDesc))
 
 	var ghost int
 	if ghostPads {
@@ -29,7 +29,7 @@ func ParseBinFromDescription(binStr string, ghostPads bool) (bin *Bin, err error
 		ghost = 0
 	}
 
-	gstElt := C.gst_parse_bin_from_description(pDesc, C.int(ghost), &gError)
+	gstElt := C.gst_parse_bin_from_description((*C.gchar)(pDesc), C.int(ghost), &gError)
 
 	if gError != nil {
 		err = errors.New("create bin error")
@@ -48,10 +48,10 @@ func ParseBinFromDescription(binStr string, ghostPads bool) (bin *Bin, err error
 
 func BinNew(name string) (bin *Bin) {
 
-	pName := (*C.gchar)(unsafe.Pointer(C.CString(name)))
-	defer C.g_free(C.gpointer(unsafe.Pointer(pName)))
+	pName := C.CString(name)
+	defer C.free(unsafe.Pointer(pName))
 
-	Celement := C.gst_bin_new(pName)
+	Celement := C.gst_bin_new((*C.gchar)(pName))
 	bin = &Bin{}
 
 	bin.GstElement = Celement
@@ -87,9 +87,9 @@ func (b *Bin) AddMany(elements ...*Element) {
 
 func (b *Bin) GetByName(name string) (element *Element) {
 
-	n := (*C.gchar)(unsafe.Pointer(C.CString(name)))
-	defer C.g_free(C.gpointer(unsafe.Pointer(n)))
-	CElement := C.X_gst_bin_get_by_name(b.GstElement, n)
+	n := C.CString(name)
+	defer C.free(unsafe.Pointer(n))
+	CElement := C.X_gst_bin_get_by_name(b.GstElement, (*C.gchar)(n))
 
 	if CElement == nil {
 		return

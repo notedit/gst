@@ -94,17 +94,17 @@ func (s *Structure) GetString(name string) (string, error) {
 
 func (s *Structure) SetValue(name string, value interface{}) {
 
-	CName := (*C.gchar)(unsafe.Pointer(C.CString(name)))
-	defer C.g_free(C.gpointer(unsafe.Pointer(CName)))
+	CName := C.CString(name)
+	defer C.free(unsafe.Pointer(CName))
 	switch value.(type) {
 	case string:
-		str := (*C.gchar)(unsafe.Pointer(C.CString(value.(string))))
-		defer C.g_free(C.gpointer(unsafe.Pointer(str)))
-		C.X_gst_structure_set_string(s.C, CName, str)
+		str := C.CString(value.(string))
+		defer C.free(unsafe.Pointer(str))
+		C.X_gst_structure_set_string(s.C, (*C.gchar)(CName), (*C.gchar)(str))
 	case int:
-		C.X_gst_structure_set_int(s.C, CName, C.gint(value.(int)))
+		C.X_gst_structure_set_int(s.C, (*C.gchar)(CName), C.gint(value.(int)))
 	case uint32:
-		C.X_gst_structure_set_uint(s.C, CName, C.guint(value.(uint32)))
+		C.X_gst_structure_set_uint(s.C, (*C.gchar)(CName), C.guint(value.(uint32)))
 	case bool:
 		var v int
 		if value.(bool) == true {
@@ -112,7 +112,7 @@ func (s *Structure) SetValue(name string, value interface{}) {
 		} else {
 			v = 0
 		}
-		C.X_gst_structure_set_bool(s.C, CName, C.gboolean(v))
+		C.X_gst_structure_set_bool(s.C, (*C.gchar)(CName), C.gboolean(v))
 	}
 
 	return

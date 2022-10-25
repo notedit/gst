@@ -78,9 +78,9 @@ func (e *Element) Name() (name string) {
 }
 
 func (e *Element) DumpDot(filePath string) {
-	n := (*C.gchar)(unsafe.Pointer(C.CString(filePath)))
-	defer C.g_free(C.gpointer(unsafe.Pointer(n)))
-	C.X_GST_DEBUG_BIN_TO_DOT_FILE(e.GstElement, n)
+	n := C.CString(filePath)
+	defer C.free(unsafe.Pointer(n))
+	C.X_GST_DEBUG_BIN_TO_DOT_FILE(e.GstElement, (*C.gchar)(n))
 }
 
 func (e *Element) Link(dst *Element) bool {
@@ -94,9 +94,9 @@ func (e *Element) Link(dst *Element) bool {
 
 func (e *Element) GetPadTemplate(name string) (padTemplate *PadTemplate) {
 
-	n := (*C.gchar)(unsafe.Pointer(C.CString(name)))
-	defer C.g_free(C.gpointer(unsafe.Pointer(n)))
-	CPadTemplate := C.gst_element_class_get_pad_template(C.X_GST_ELEMENT_GET_CLASS(e.GstElement), n)
+	n := C.CString(name)
+	defer C.free(unsafe.Pointer(n))
+	CPadTemplate := C.gst_element_class_get_pad_template(C.X_GST_ELEMENT_GET_CLASS(e.GstElement), (*C.gchar)(n))
 	padTemplate = &PadTemplate{
 		C: CPadTemplate,
 	}
@@ -112,15 +112,15 @@ func (e *Element) GetRequestPad(padTemplate *PadTemplate, name string, caps *Cap
 	if name == "" {
 		n = nil
 	} else {
-		n = (*C.gchar)(unsafe.Pointer(C.CString(name)))
-		defer C.g_free(C.gpointer(unsafe.Pointer(n)))
+		n = C.CString(name)
+		defer C.free(unsafe.Pointer(n))
 	}
 	if caps == nil {
 		c = nil
 	} else {
 		c = caps.caps
 	}
-	CPad := C.gst_element_request_pad(e.GstElement, padTemplate.C, n, c)
+	CPad := C.gst_element_request_pad(e.GstElement, padTemplate.C, (*C.gchar)(n), c)
 	pad = &Pad{
 		pad: CPad,
 	}
@@ -130,9 +130,9 @@ func (e *Element) GetRequestPad(padTemplate *PadTemplate, name string, caps *Cap
 
 func (e *Element) GetStaticPad(name string) (pad *Pad) {
 
-	n := (*C.gchar)(unsafe.Pointer(C.CString(name)))
-	defer C.g_free(C.gpointer(unsafe.Pointer(n)))
-	CPad := C.gst_element_get_static_pad(e.GstElement, n)
+	n := C.CString(name)
+	defer C.free(unsafe.Pointer(n))
+	CPad := C.gst_element_get_static_pad(e.GstElement, (*C.gchar)(n))
 	pad = &Pad{
 		pad: CPad,
 	}
@@ -285,17 +285,17 @@ func (e *Element) IsEOS() bool {
 
 func (e *Element) SetObject(name string, value interface{}) {
 
-	cname := (*C.gchar)(unsafe.Pointer(C.CString(name)))
-	defer C.g_free(C.gpointer(unsafe.Pointer(cname)))
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
 	switch value.(type) {
 	case string:
-		str := (*C.gchar)(unsafe.Pointer(C.CString(value.(string))))
-		defer C.g_free(C.gpointer(unsafe.Pointer(str)))
-		C.X_gst_g_object_set_string(e.GstElement, cname, str)
+		str := C.CString(value.(string))
+		defer C.free(unsafe.Pointer(str))
+		C.X_gst_g_object_set_string(e.GstElement, (*C.gchar)(unsafe.Pointer(cname)), (*C.gchar)(str))
 	case int:
-		C.X_gst_g_object_set_int(e.GstElement, cname, C.gint(value.(int)))
+		C.X_gst_g_object_set_int(e.GstElement, (*C.gchar)(unsafe.Pointer(cname)), C.gint(value.(int)))
 	case uint32:
-		C.X_gst_g_object_set_uint(e.GstElement, cname, C.guint(value.(uint32)))
+		C.X_gst_g_object_set_uint(e.GstElement, (*C.gchar)(unsafe.Pointer(cname)), C.guint(value.(uint32)))
 	case bool:
 		var cvalue int
 		if value.(bool) == true {
@@ -303,18 +303,18 @@ func (e *Element) SetObject(name string, value interface{}) {
 		} else {
 			cvalue = 0
 		}
-		C.X_gst_g_object_set_bool(e.GstElement, cname, C.gboolean(cvalue))
+		C.X_gst_g_object_set_bool(e.GstElement, (*C.gchar)(unsafe.Pointer(cname)), C.gboolean(cvalue))
 	case float64:
-		C.X_gst_g_object_set_gdouble(e.GstElement, cname, C.gdouble(value.(float64)))
+		C.X_gst_g_object_set_gdouble(e.GstElement, (*C.gchar)(unsafe.Pointer(cname)), C.gdouble(value.(float64)))
 	case *Caps:
 		caps := value.(*Caps)
-		C.X_gst_g_object_set_caps(e.GstElement, cname, caps.caps)
+		C.X_gst_g_object_set_caps(e.GstElement, (*C.gchar)(unsafe.Pointer(cname)), caps.caps)
 	case *Structure:
 		structure := value.(*Structure)
-		C.X_gst_g_object_set_structure(e.GstElement, cname, structure.C)
+		C.X_gst_g_object_set_structure(e.GstElement, (*C.gchar)(unsafe.Pointer(cname)), structure.C)
 	case *Element:
 		element := value.(*Element)
-		C.X_gst_g_object_set_element(e.GstElement, cname, element.GstElement)
+		C.X_gst_g_object_set_element(e.GstElement, (*C.gchar)(unsafe.Pointer(cname)), element.GstElement)
 
 	default:
 		panic(fmt.Errorf("SetObject: don't know how to set value for type %T", value))
@@ -420,15 +420,15 @@ func (e *Element) SetPadAddedCallback(callback PadAddedCallback) {
 func ElementFactoryMake(factoryName string, name string) (e *Element, err error) {
 	var pName *C.gchar
 
-	pFactoryName := (*C.gchar)(unsafe.Pointer(C.CString(factoryName)))
-	defer C.g_free(C.gpointer(unsafe.Pointer(pFactoryName)))
+	pFactoryName := C.CString(factoryName)
+	defer C.free(unsafe.Pointer(pFactoryName))
 	if name == "" {
 		pName = nil
 	} else {
-		pName = (*C.gchar)(unsafe.Pointer(C.CString(name)))
-		defer C.g_free(C.gpointer(unsafe.Pointer(pName)))
+		pName = C.CString(name)
+		defer C.free(unsafe.Pointer(pName))
 	}
-	gstElt := C.gst_element_factory_make(pFactoryName, pName)
+	gstElt := C.gst_element_factory_make((*C.gchar)(pFactoryName), (*C.gchar)(pName))
 
 	if gstElt == nil {
 		err = errors.New(fmt.Sprintf("could not create a GStreamer element factoryName %s, name %s", factoryName, name))

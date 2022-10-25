@@ -1,5 +1,5 @@
-//go:build !arm && !arm64
-// +build !arm,!arm64
+//go:build !arm && !arm64 && !windows
+// +build !arm,!arm64,!windows
 
 package gst
 
