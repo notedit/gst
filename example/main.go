@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/buYoung/gst"
+	"github.com/notedit/gst"
 	"time"
 )
 
